@@ -751,8 +751,9 @@
       if (token) {
         ws.send(JSON.stringify({ type: 'auth', token: token }));
       } else {
-        console.error('No JWT token found, redirecting to login');
-        window.location.href = '/login';
+        console.warn('No JWT token found in cookies');
+        // Don't redirect — let auth middleware handle it on next page load
+        ws.close();
         return;
       }
     };
@@ -786,9 +787,21 @@
     }
   }
 
+  var wsRetryCount = 0;
+  var wsMaxRetries = 10;
   function scheduleReconnect() {
+    if (wsRetryCount >= wsMaxRetries) {
+      console.warn('Max WebSocket retries reached, stopping');
+      setConnectionStatus(false);
+      return;
+    }
     if (!reconnectTimer) {
-      reconnectTimer = setInterval(function() { connectWS(); }, 3000);
+      var delay = Math.min(3000 * Math.pow(1.5, wsRetryCount), 30000);
+      wsRetryCount++;
+      reconnectTimer = setTimeout(function() {
+        reconnectTimer = null;
+        connectWS();
+      }, delay);
     }
   }
 
@@ -830,12 +843,18 @@
 
       case 'auth_success':
         setConnectionStatus(true);
-        if (reconnectTimer) { clearInterval(reconnectTimer); reconnectTimer = null; }
+        wsRetryCount = 0;
+        if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
         break;
 
       case 'auth_error':
         console.error('WebSocket auth failed:', msg.message);
-        window.location.href = '/login';
+        setConnectionStatus(false);
+        // Only redirect once, not in a loop
+        if (!window._authRedirected) {
+          window._authRedirected = true;
+          setTimeout(function(){ window.location.href = '/login'; }, 2000);
+        }
         break;
 
       // Real-time channels

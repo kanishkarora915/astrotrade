@@ -405,7 +405,7 @@ async def auth_callback(request_token: str = Query(None), status: str = Query(No
     response.set_cookie(
         key=JWT_COOKIE_NAME,
         value=token,
-        httponly=True,
+        httponly=False,
         samesite="lax",
         max_age=JWT_EXPIRY_HOURS * 3600,
         path="/",
