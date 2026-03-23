@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASTRONIFTY ENGINE</title>
+<style>
+  :root {
+    --bg-primary: #0a0a0a;
+    --bg-secondary: #111111;
+    --bg-card: #161616;
+    --bg-card-hover: #1a1a1a;
+    --border: #2a2a2a;
+    --text-primary: #e0e0e0;
+    --text-secondary: #888888;
+    --text-muted: #555555;
+    --green: #00c853;
+    --green-dim: #00802e;
+    --red: #ff1744;
+    --red-dim: #991030;
+    --yellow: #ffd600;
+    --yellow-dim: #9e8500;
+    --blue: #2979ff;
+    --cyan: #00e5ff;
+    --orange: #ff9100;
+    --font-mono: 'Courier New', 'Consolas', monospace;
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    overflow-x: hidden;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: linear-gradient(90deg, #0d0d0d, #1a1a1a);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header-title {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--cyan);
+  }
+  .header-title span { color: var(--text-muted); font-weight: 400; font-size: 11px; }
+  .header-status {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+
+  /* ── User info bar ── */
+  .user-bar {
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border);
+    padding: 6px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: var(--text-secondary);
+  }
+  .user-name {
+    color: var(--cyan);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .user-id-label {
+    color: var(--text-muted);
+  }
+  .user-capital {
+    color: var(--green);
+    font-weight: 700;
+  }
+  .user-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .mode-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    padding: 3px 10px;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    background: transparent;
+    transition: all 0.2s ease;
+  }
+  .mode-toggle.paper {
+    border-color: var(--yellow-dim);
+    color: var(--yellow);
+  }
+  .mode-toggle.live {
+    border-color: var(--green-dim);
+    color: var(--green);
+  }
+  .mode-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .mode-dot.paper { background: var(--yellow); }
+  .mode-dot.live { background: var(--green); animation: blink 1s ease-in-out infinite; }
+  .btn-logout {
+    padding: 3px 12px;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .btn-logout:hover {
+    border-color: var(--red);
+    color: var(--red);
+    background: rgba(255,23,68,0.05);
+  }
+
+  .live-badge {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+  .live-badge.connected {
+    background: rgba(0,200,83,0.15);
+    color: var(--green);
+    border: 1px solid var(--green-dim);
+  }
+  .live-badge.disconnected {
+    background: rgba(255,23,68,0.15);
+    color: var(--red);
+    border: 1px solid var(--red-dim);
+  }
+  .live-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    display: inline-block;
+  }
+  .live-dot.connected {
+    background: var(--green);
+    animation: blink 1s ease-in-out infinite;
+  }
+  .live-dot.disconnected { background: var(--red); }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .tick-counter {
+    color: var(--text-muted);
+    font-size: 10px;
+  }
+  .tick-counter .count { color: var(--cyan); font-weight: 700; }
+  .data-freshness {
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+  .data-freshness.fresh { color: var(--green); }
+  .data-freshness.stale { color: var(--yellow); }
+  .data-freshness.dead { color: var(--red); }
+  .clock { color: var(--text-secondary); }
+
+  /* ── Grid layout ── */
+  .dashboard {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: auto;
+    gap: 8px;
+    padding: 8px;
+    min-height: calc(100vh - 90px);
+  }
+
+  /* ── Card ── */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .card-header {
+    background: var(--bg-secondary);
+    padding: 6px 10px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .card-body { padding: 10px; }
+
+  /* ── Score cards row ── */
+  .score-cards { grid-column: 1 / 4; display: flex; gap: 8px; }
+  .score-card {
+    flex: 1;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 12px;
+    text-align: center;
+    transition: border-color 0.3s ease;
+  }
+  .score-card.bull { border-color: var(--green-dim); }
+  .score-card.bear { border-color: var(--red-dim); }
+  .score-card.neutral { border-color: var(--yellow-dim); }
+  .score-index {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-secondary);
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+  .score-value {
+    font-family: var(--font-mono);
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1;
+    transition: color 0.3s ease;
+  }
+  .score-value.positive { color: var(--green); }
+  .score-value.negative { color: var(--red); }
+  .score-value.zero { color: var(--yellow); }
+
+  /* ── Live price under score ── */
+  .live-price {
+    margin-top: 6px;
+    font-family: var(--font-mono);
+    font-size: 16px;
+    font-weight: 700;
+    transition: color 0.15s ease;
+  }
+  .live-price-change {
+    font-size: 11px;
+    margin-top: 2px;
+    font-family: var(--font-mono);
+  }
+
+  .score-meta {
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+  }
+  .score-meta .bias { font-weight: 700; }
+  .score-meta .confidence { color: var(--text-muted); }
+
+  /* ── Flash animations for price changes ── */
+  .flash-green { animation: flashGreen 0.6s ease-out; }
+  .flash-red { animation: flashRed 0.6s ease-out; }
+  @keyframes flashGreen {
+    0% { background: rgba(0,200,83,0.3); }
+    100% { background: transparent; }
+  }
+  @keyframes flashRed {
+    0% { background: rgba(255,23,68,0.3); }
+    100% { background: transparent; }
+  }
+
+  .num-transition { transition: color 0.15s ease; }
+  .num-up { color: var(--green) !important; }
+  .num-down { color: var(--red) !important; }
+
+  /* ── Risk status ── */
+  .risk-card { grid-column: 4 / 5; }
+  .risk-status { text-align: center; padding: 12px; }
+  .risk-level {
+    font-family: var(--font-mono);
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 2px;
+  }
+  .risk-details { margin-top: 8px; font-size: 11px; color: var(--text-secondary); }
+  .risk-details div { margin: 3px 0; }
+
+  /* ── Signals panel ── */
+  .signals-panel { grid-column: 1 / 3; }
+
+  /* ── Positions panel ── */
+  .positions-panel { grid-column: 3 / 5; }
+
+  /* ── Table styles ── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+  .data-table th {
+    text-align: left;
+    padding: 4px 6px;
+    color: var(--text-muted);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border);
+  }
+  .data-table td {
+    padding: 5px 6px;
+    border-bottom: 1px solid #1e1e1e;
+    white-space: nowrap;
+    transition: background 0.3s ease;
+  }
+  .data-table tr:hover { background: var(--bg-card-hover); }
+
+  /* ── Astro panel ── */
+  .astro-panel { grid-column: 1 / 2; }
+  .astro-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .astro-item {
+    background: var(--bg-secondary);
+    padding: 8px;
+    border-radius: 3px;
+    border-left: 3px solid var(--cyan);
+  }
+  .astro-label {
+    font-size: 9px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .astro-value {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--cyan);
+    margin-top: 2px;
+  }
+
+  /* ── OI panel ── */
+  .oi-panel { grid-column: 2 / 3; }
+  .oi-stat {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    border-bottom: 1px solid #1e1e1e;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    transition: background 0.3s ease;
+  }
+  .oi-label { color: var(--text-secondary); }
+  .oi-val { font-weight: 700; transition: color 0.15s ease; }
+
+  /* ── Sector heatmap ── */
+  .sector-panel { grid-column: 3 / 5; }
+  .sector-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+  }
+  .sector-cell {
+    padding: 8px 6px;
+    text-align: center;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    transition: background 0.5s ease, transform 0.2s ease;
+  }
+  .sector-cell:hover { transform: scale(1.03); }
+  .sector-cell .name { font-size: 9px; color: rgba(255,255,255,0.7); }
+  .sector-cell .val { font-size: 13px; font-weight: 700; margin-top: 2px; transition: color 0.3s ease; }
+
+  /* ── Weekly forecast ── */
+  .weekly-panel { grid-column: 1 / 3; }
+
+  /* ── Trade log ── */
+  .trade-log-panel { grid-column: 3 / 5; }
+
+  /* ── Module health bar ── */
+  .health-bar {
+    display: flex;
+    gap: 6px;
+    padding: 6px 20px;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 10px;
+  }
+  .health-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--text-muted);
+  }
+  .health-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    transition: background 0.3s ease;
+  }
+  .health-dot.green { background: var(--green); }
+  .health-dot.yellow { background: var(--yellow); }
+  .health-dot.red { background: var(--red); }
+
+  /* ── Utility ── */
+  .bull { color: var(--green) !important; }
+  .bear { color: var(--red) !important; }
+  .neutral { color: var(--yellow) !important; }
+  .tag {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 2px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .tag-buy { background: var(--green-dim); color: var(--green); }
+  .tag-sell { background: var(--red-dim); color: var(--red); }
+  .tag-hold { background: var(--yellow-dim); color: var(--yellow); }
+  .tag-strong { background: #1a3a1a; color: #4cff4c; }
+  .empty-msg {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 20px;
+    font-style: italic;
+  }
+
+  @media (max-width: 1200px) {
+    .dashboard { grid-template-columns: repeat(2, 1fr); }
+    .score-cards { grid-column: 1 / -1; flex-wrap: wrap; }
+    .risk-card, .signals-panel, .positions-panel,
+    .astro-panel, .oi-panel, .sector-panel,
+    .weekly-panel, .trade-log-panel { grid-column: 1 / -1; }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; background: rgba(0,229,255,0.1); }
+    to { opacity: 1; background: transparent; }
+  }
+  @keyframes pulseGreen {
+    0% { box-shadow: 0 0 0 0 rgba(0,200,83,0.4); }
+    70% { box-shadow: 0 0 0 6px rgba(0,200,83,0); }
+    100% { box-shadow: 0 0 0 0 rgba(0,200,83,0); }
+  }
+  @keyframes pulseRed {
+    0% { box-shadow: 0 0 0 0 rgba(255,23,68,0.4); }
+    70% { box-shadow: 0 0 0 6px rgba(255,23,68,0); }
+    100% { box-shadow: 0 0 0 0 rgba(255,23,68,0); }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-title">
+    ASTRONIFTY ENGINE <span>&mdash; AstroTrade by Kanishk Arora</span>
+  </div>
+  <div class="header-status">
+    <span class="tick-counter">TICKS: <span class="count" id="tickCount">0</span></span>
+    <span class="data-freshness" id="freshness">--</span>
+    <span class="clock" id="clock">--:--:--</span>
+    <span class="live-badge disconnected" id="liveBadge">
+      <span class="live-dot disconnected" id="liveDot"></span>
+      <span id="liveLabel">DISCONNECTED</span>
+    </span>
+  </div>
+</div>
+
+<!-- USER BAR -->
+<div class="user-bar">
+  <div class="user-info">
+    <span>Logged in as: <span class="user-name" id="userName">--</span></span>
+    <span class="user-id-label">(<span id="userZerodhaId">--</span>)</span>
+    <span>Capital: <span class="user-capital" id="userCapital">--</span></span>
+  </div>
+  <div class="user-actions">
+    <button class="mode-toggle paper" id="modeToggle" onclick="toggleMode()">
+      <span class="mode-dot paper" id="modeDot"></span>
+      <span id="modeLabel">PAPER</span>
+    </button>
+    <button class="btn-logout" onclick="doLogout()">LOGOUT</button>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard">
+
+  <!-- Score Cards with Live Prices -->
+  <div class="score-cards" id="scoreCards">
+    <div class="score-card neutral" id="score-NIFTY">
+      <div class="score-index">NIFTY 50</div>
+      <div class="live-price" id="price-NIFTY">--</div>
+      <div class="live-price-change" id="priceChg-NIFTY">--</div>
+      <div class="score-value zero" id="scoreVal-NIFTY">--</div>
+      <div class="score-meta">
+        <span class="bias" id="bias-NIFTY">--</span>
+        <span class="confidence" id="conf-NIFTY">--</span>
+      </div>
+    </div>
+    <div class="score-card neutral" id="score-BANKNIFTY">
+      <div class="score-index">BANK NIFTY</div>
+      <div class="live-price" id="price-BANKNIFTY">--</div>
+      <div class="live-price-change" id="priceChg-BANKNIFTY">--</div>
+      <div class="score-value zero" id="scoreVal-BANKNIFTY">--</div>
+      <div class="score-meta">
+        <span class="bias" id="bias-BANKNIFTY">--</span>
+        <span class="confidence" id="conf-BANKNIFTY">--</span>
+      </div>
+    </div>
+    <div class="score-card neutral" id="score-GIFTNIFTY">
+      <div class="score-index">GIFT NIFTY</div>
+      <div class="live-price" id="price-GIFTNIFTY">--</div>
+      <div class="live-price-change" id="priceChg-GIFTNIFTY">--</div>
+      <div class="score-value zero" id="scoreVal-GIFTNIFTY">--</div>
+      <div class="score-meta">
+        <span class="bias" id="bias-GIFTNIFTY">--</span>
+        <span class="confidence" id="conf-GIFTNIFTY">--</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Risk Status -->
+  <div class="card risk-card">
+    <div class="card-header">RISK STATUS</div>
+    <div class="card-body risk-status">
+      <div class="risk-level neutral" id="riskLevel">NORMAL</div>
+      <div class="risk-details" id="riskDetails">
+        <div>Max Loss: <span id="riskMaxLoss">--</span></div>
+        <div>Open Positions: <span id="riskOpenPos">0</span></div>
+        <div>Day P&amp;L: <span id="riskDayPnl">--</span></div>
+        <div>Drawdown: <span id="riskDrawdown">--</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active Signals -->
+  <div class="card signals-panel">
+    <div class="card-header">ACTIVE SIGNALS <span id="signalCount">0</span></div>
+    <div class="card-body">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>TIME</th><th>INDEX</th><th>DIRECTION</th><th>SCORE</th>
+            <th>ENTRY</th><th>SL</th><th>T1</th><th>T2</th><th>STATUS</th>
+          </tr>
+        </thead>
+        <tbody id="signalsBody">
+          <tr><td colspan="9" class="empty-msg">Waiting for signals...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Open Positions -->
+  <div class="card positions-panel">
+    <div class="card-header">OPEN POSITIONS <span id="posCount">0</span></div>
+    <div class="card-body">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>INSTRUMENT</th><th>QTY</th><th>ENTRY</th><th>LTP</th>
+            <th>P&amp;L</th><th>SL</th><th>TARGET</th><th>STATUS</th>
+          </tr>
+        </thead>
+        <tbody id="positionsBody">
+          <tr><td colspan="8" class="empty-msg">No open positions</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Astro Panel -->
+  <div class="card astro-panel">
+    <div class="card-header">ASTRO DATA</div>
+    <div class="card-body">
+      <div class="astro-grid" id="astroGrid">
+        <div class="astro-item"><div class="astro-label">Nakshatra</div><div class="astro-value" id="astroNakshatra">--</div></div>
+        <div class="astro-item"><div class="astro-label">Tithi</div><div class="astro-value" id="astroTithi">--</div></div>
+        <div class="astro-item"><div class="astro-label">Hora</div><div class="astro-value" id="astroHora">--</div></div>
+        <div class="astro-item"><div class="astro-label">Yoga</div><div class="astro-value" id="astroYoga">--</div></div>
+        <div class="astro-item"><div class="astro-label">Moon Sign</div><div class="astro-value" id="astroMoonSign">--</div></div>
+        <div class="astro-item"><div class="astro-label">Aspect</div><div class="astro-value" id="astroAspect">--</div></div>
+        <div class="astro-item"><div class="astro-label">Score</div><div class="astro-value" id="astroScore">--</div></div>
+        <div class="astro-item"><div class="astro-label">Bias</div><div class="astro-value" id="astroBias">--</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OI Summary -->
+  <div class="card oi-panel">
+    <div class="card-header">OI SUMMARY <span style="font-size:9px;color:var(--text-muted)" id="oiIndex">NIFTY</span></div>
+    <div class="card-body" id="oiBody">
+      <div class="oi-stat"><span class="oi-label">Max Pain</span><span class="oi-val" id="oiMaxPain">--</span></div>
+      <div class="oi-stat"><span class="oi-label">PCR</span><span class="oi-val" id="oiPCR">--</span></div>
+      <div class="oi-stat"><span class="oi-label">CE Wall</span><span class="oi-val" id="oiCEWall">--</span></div>
+      <div class="oi-stat"><span class="oi-label">PE Wall</span><span class="oi-val" id="oiPEWall">--</span></div>
+      <div class="oi-stat"><span class="oi-label">OI Bias</span><span class="oi-val" id="oiBias">--</span></div>
+      <div class="oi-stat"><span class="oi-label">CE Chg</span><span class="oi-val" id="oiCEChg">--</span></div>
+      <div class="oi-stat"><span class="oi-label">PE Chg</span><span class="oi-val" id="oiPEChg">--</span></div>
+      <div class="oi-stat"><span class="oi-label">Spot</span><span class="oi-val" id="oiSpot">--</span></div>
+    </div>
+  </div>
+
+  <!-- Sector Heatmap -->
+  <div class="card sector-panel">
+    <div class="card-header">SECTOR IMPACT HEATMAP</div>
+    <div class="card-body">
+      <div class="sector-grid" id="sectorGrid">
+        <div class="empty-msg" style="grid-column:1/-1;">Loading sectors...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Weekly Probability -->
+  <div class="card weekly-panel">
+    <div class="card-header">WEEKLY PROBABILITY FORECAST</div>
+    <div class="card-body">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>DAY</th><th>RANGE</th><th>BULL%</th><th>BEAR%</th>
+            <th>KEY LEVELS</th><th>ASTRO NOTE</th>
+          </tr>
+        </thead>
+        <tbody id="weeklyBody">
+          <tr><td colspan="6" class="empty-msg">Forecast not generated yet</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Trade Log -->
+  <div class="card trade-log-panel">
+    <div class="card-header">TODAY'S TRADE LOG <span id="tradeCount">0</span></div>
+    <div class="card-body">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>TIME</th><th>INDEX</th><th>DIR</th><th>ENTRY</th>
+            <th>EXIT</th><th>P&amp;L</th><th>REASON</th>
+          </tr>
+        </thead>
+        <tbody id="tradeLogBody">
+          <tr><td colspan="7" class="empty-msg">No trades today</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- HEALTH BAR -->
+<div class="health-bar" id="healthBar">
+  <div class="health-item"><span class="health-dot red" id="h-astro"></span>ASTRO</div>
+  <div class="health-item"><span class="health-dot red" id="h-oi"></span>OI</div>
+  <div class="health-item"><span class="health-dot red" id="h-sector"></span>SECTOR</div>
+  <div class="health-item"><span class="health-dot red" id="h-scorer"></span>SCORER</div>
+  <div class="health-item"><span class="health-dot red" id="h-risk"></span>RISK</div>
+  <div class="health-item"><span class="health-dot red" id="h-executor"></span>EXEC</div>
+  <div class="health-item"><span class="health-dot red" id="h-database"></span>DB</div>
+  <div class="health-item"><span class="health-dot red" id="h-telegram"></span>TG</div>
+  <div class="health-item"><span class="health-dot red" id="h-ticker"></span>TICKER</div>
+</div>
+
+<!-- JAVASCRIPT -->
+<script>
+(function() {
+  'use strict';
+
+  // ── State ──
+  var ws = null;
+  var reconnectTimer = null;
+  var WS_URL = 'ws://' + window.location.host + '/ws';
+  var tickCount = 0;
+  var lastTickTs = 0;
+  var prevPrices = {};
+  var prevPnls = {};
+  var currentMode = 'paper';  // paper or live
+
+  // ── Get JWT token from cookie for WebSocket auth ──
+  function getJwtToken() {
+    var cookies = document.cookie.split(';');
+    for (var i = 0; i < cookies.length; i++) {
+      var c = cookies[i].trim();
+      if (c.startsWith('astronifty_token=')) {
+        return c.substring('astronifty_token='.length);
+      }
+    }
+    return '';
+  }
+
+  // ── Clock ──
+  function updateClock() {
+    var now = new Date();
+    var h = String(now.getHours()).padStart(2, '0');
+    var m = String(now.getMinutes()).padStart(2, '0');
+    var s = String(now.getSeconds()).padStart(2, '0');
+    document.getElementById('clock').textContent = h + ':' + m + ':' + s;
+
+    if (lastTickTs > 0) {
+      var age = Math.round((Date.now() - lastTickTs) / 1000);
+      var el = document.getElementById('freshness');
+      if (age <= 2) {
+        el.textContent = 'DATA: LIVE';
+        el.className = 'data-freshness fresh';
+      } else if (age <= 10) {
+        el.textContent = 'DATA: ' + age + 's ago';
+        el.className = 'data-freshness stale';
+      } else {
+        el.textContent = 'DATA: ' + age + 's ago';
+        el.className = 'data-freshness dead';
+      }
+    }
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  // ── WebSocket with JWT auth ──
+  function connectWS() {
+    if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) return;
+    ws = new WebSocket(WS_URL);
+    ws.onopen = function() {
+      // Send JWT token as first message for authentication
+      var token = getJwtToken();
+      if (token) {
+        ws.send(JSON.stringify({ type: 'auth', token: token }));
+      } else {
+        console.error('No JWT token found, redirecting to login');
+        window.location.href = '/login';
+        return;
+      }
+    };
+    ws.onclose = function() {
+      setConnectionStatus(false);
+      scheduleReconnect();
+    };
+    ws.onerror = function() {
+      setConnectionStatus(false);
+    };
+    ws.onmessage = function(event) {
+      try {
+        var data = JSON.parse(event.data);
+        handleMessage(data);
+      } catch (e) { console.error('WS parse error', e); }
+    };
+  }
+
+  function setConnectionStatus(connected) {
+    var badge = document.getElementById('liveBadge');
+    var dot = document.getElementById('liveDot');
+    var label = document.getElementById('liveLabel');
+    if (connected) {
+      badge.className = 'live-badge connected';
+      dot.className = 'live-dot connected';
+      label.textContent = 'LIVE';
+    } else {
+      badge.className = 'live-badge disconnected';
+      dot.className = 'live-dot disconnected';
+      label.textContent = 'DISCONNECTED';
+    }
+  }
+
+  function scheduleReconnect() {
+    if (!reconnectTimer) {
+      reconnectTimer = setInterval(function() { connectWS(); }, 3000);
+    }
+  }
+
+  // Keepalive ping every 25s
+  setInterval(function() {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({ type: 'ping' }));
+    }
+  }, 25000);
+
+  // ── Message router ──
+  function handleMessage(msg) {
+    var ch = msg.channel || msg.type || '';
+
+    switch (ch) {
+      case 'snapshot':
+        // Update user info from snapshot
+        if (msg.user) {
+          updateUserBar(msg.user);
+        }
+        renderScores(msg.scores || {});
+        renderSignals(msg.signals || []);
+        renderPositions(msg.positions || []);
+        renderAstro(msg.astro || {});
+        renderOI(msg.oi || {});
+        renderSectors(msg.sectors || {});
+        renderWeekly(msg.weekly || {});
+        renderTrades(msg.trades || []);
+        renderPnl(msg.pnl || {});
+        renderHealth(msg.health || {});
+        if (msg.live_prices) renderLivePrices(msg.live_prices);
+        if (msg.live_sectors) renderSectors(msg.live_sectors);
+        if (msg.tick_count) {
+          tickCount = msg.tick_count;
+          document.getElementById('tickCount').textContent = formatNumber(tickCount);
+        }
+        if (msg.ticker_connected) setConnectionStatus(true);
+        break;
+
+      case 'auth_success':
+        setConnectionStatus(true);
+        if (reconnectTimer) { clearInterval(reconnectTimer); reconnectTimer = null; }
+        break;
+
+      case 'auth_error':
+        console.error('WebSocket auth failed:', msg.message);
+        window.location.href = '/login';
+        break;
+
+      // Real-time channels
+      case 'prices':    renderLivePrices(msg.data); lastTickTs = Date.now(); break;
+      case 'chain':     renderChainUpdate(msg.index, msg.data); break;
+      case 'greeks':    break;
+      case 'scores':    renderScores(msg.data); break;
+      case 'signal':
+      case 'signals':   appendSignal(msg.data); break;
+      case 'positions': renderPositions(msg.data); break;
+      case 'sectors':   renderSectors(msg.data); break;
+      case 'astro':     renderAstro(msg.data); break;
+      case 'trade':
+      case 'trades':    appendTrade(msg.data); break;
+      case 'pnl':       renderPnl(msg.data); break;
+      case 'health':    renderHealth(msg.data); break;
+      case 'oi':        renderOISingle(msg.index, msg.data); break;
+      case 'pong':      break;
+
+      case 'session_expired':
+        alert('Kite session expired (6 AM daily reset). Please re-login.');
+        window.location.href = '/login';
+        break;
+    }
+
+    if (msg.tick_count) {
+      tickCount = msg.tick_count;
+      document.getElementById('tickCount').textContent = formatNumber(tickCount);
+    }
+  }
+
+  // ── User bar ──
+  function updateUserBar(user) {
+    document.getElementById('userName').textContent = user.user_name || '--';
+    document.getElementById('userZerodhaId').textContent = user.user_id || '--';
+
+    if (user.capital) {
+      var cap = parseFloat(user.capital);
+      if (cap >= 100000) {
+        document.getElementById('userCapital').textContent = (cap / 100000).toFixed(2) + 'L';
+      } else {
+        document.getElementById('userCapital').textContent = cap.toLocaleString('en-IN');
+      }
+    }
+
+    currentMode = user.paper_trade ? 'paper' : 'live';
+    updateModeUI();
+  }
+
+  function updateModeUI() {
+    var toggle = document.getElementById('modeToggle');
+    var dot = document.getElementById('modeDot');
+    var label = document.getElementById('modeLabel');
+
+    if (currentMode === 'live') {
+      toggle.className = 'mode-toggle live';
+      dot.className = 'mode-dot live';
+      label.textContent = 'LIVE';
+    } else {
+      toggle.className = 'mode-toggle paper';
+      dot.className = 'mode-dot paper';
+      label.textContent = 'PAPER';
+    }
+  }
+
+  // ── Expose toggle/logout to global scope ──
+  window.toggleMode = function() {
+    var newMode = currentMode === 'paper' ? 'live' : 'paper';
+    fetch('/api/auth/mode', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: newMode }),
+    }).then(function(res) { return res.json(); }).then(function(data) {
+      if (data.success) {
+        currentMode = data.mode;
+        updateModeUI();
+      }
+    }).catch(function(err) {
+      console.error('Mode toggle failed:', err);
+    });
+  };
+
+  window.doLogout = function() {
+    fetch('/api/auth/logout', { method: 'POST' })
+    .then(function() {
+      window.location.href = '/login';
+    })
+    .catch(function() {
+      window.location.href = '/login';
+    });
+  };
+
+  // ── Utility functions ──
+  function formatNumber(n) {
+    if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
+    if (n >= 1000) return (n/1000).toFixed(1) + 'K';
+    return String(n);
+  }
+
+  function pnlClass(val) { return val > 0 ? 'bull' : (val < 0 ? 'bear' : 'neutral'); }
+  function biasClass(b) {
+    if (!b) return 'neutral';
+    var bl = b.toLowerCase();
+    return bl.includes('bull') ? 'bull' : (bl.includes('bear') ? 'bear' : 'neutral');
+  }
+
+  function animateValue(el, newText, direction) {
+    el.textContent = newText;
+    if (direction === 'up') {
+      el.classList.remove('flash-red', 'num-down');
+      el.classList.add('flash-green', 'num-up');
+    } else if (direction === 'down') {
+      el.classList.remove('flash-green', 'num-up');
+      el.classList.add('flash-red', 'num-down');
+    }
+    setTimeout(function() {
+      el.classList.remove('flash-green', 'flash-red', 'num-up', 'num-down');
+    }, 600);
+  }
+
+  // ── Live Price Renderer ──
+  function renderLivePrices(prices) {
+    lastTickTs = Date.now();
+    ['NIFTY', 'BANKNIFTY', 'GIFTNIFTY'].forEach(function(idx) {
+      var p = prices[idx];
+      if (!p) return;
+
+      var ltp = p.ltp || 0;
+      var change = p.change || 0;
+      var prevLtp = prevPrices[idx] || ltp;
+
+      var priceEl = document.getElementById('price-' + idx);
+      if (priceEl) {
+        var direction = ltp > prevLtp ? 'up' : (ltp < prevLtp ? 'down' : null);
+        if (direction) {
+          animateValue(priceEl, ltp.toFixed(2), direction);
+          var card = document.getElementById('score-' + idx);
+          if (card) {
+            card.classList.remove('flash-green', 'flash-red');
+            void card.offsetWidth;
+            card.classList.add(direction === 'up' ? 'flash-green' : 'flash-red');
+            setTimeout(function() { card.classList.remove('flash-green', 'flash-red'); }, 600);
+          }
+        } else {
+          priceEl.textContent = ltp.toFixed(2);
+        }
+        priceEl.style.color = ltp >= prevLtp ? 'var(--green)' : 'var(--red)';
+      }
+
+      var chgEl = document.getElementById('priceChg-' + idx);
+      if (chgEl && change !== undefined) {
+        var sign = change >= 0 ? '+' : '';
+        var close = p.close || (ltp - change);
+        var changePct = close ? ((change / close) * 100).toFixed(2) : '0.00';
+        chgEl.textContent = sign + change.toFixed(2) + ' (' + sign + changePct + '%)';
+        chgEl.className = 'live-price-change ' + (change >= 0 ? 'bull' : 'bear');
+      }
+
+      prevPrices[idx] = ltp;
+    });
+  }
+
+  // ── Chain update ──
+  function renderChainUpdate(index, chainData) {
+    if (!chainData || !index) return;
+    if (index === 'NIFTY' && Array.isArray(chainData)) {
+      var totalCeOi = 0, totalPeOi = 0;
+      var maxCeOi = 0, maxPeOi = 0;
+      var ceWall = '--', peWall = '--';
+
+      chainData.forEach(function(row) {
+        totalCeOi += (row.ce_oi || 0);
+        totalPeOi += (row.pe_oi || 0);
+        if ((row.ce_oi || 0) > maxCeOi) { maxCeOi = row.ce_oi; ceWall = row.strike; }
+        if ((row.pe_oi || 0) > maxPeOi) { maxPeOi = row.pe_oi; peWall = row.strike; }
+      });
+
+      var pcr = totalCeOi ? (totalPeOi / totalCeOi) : 0;
+      var oiBias = pcr > 1.0 ? 'BULLISH' : (pcr < 0.7 ? 'BEARISH' : 'NEUTRAL');
+
+      updateOIField('oiPCR', pcr.toFixed(2));
+      updateOIField('oiCEWall', ceWall);
+      updateOIField('oiPEWall', peWall);
+      var biasEl = document.getElementById('oiBias');
+      if (biasEl) {
+        biasEl.textContent = oiBias;
+        biasEl.className = 'oi-val ' + biasClass(oiBias);
+      }
+    }
+  }
+
+  function updateOIField(id, newVal) {
+    var el = document.getElementById(id);
+    if (el) {
+      var oldVal = el.textContent;
+      if (oldVal !== String(newVal) && oldVal !== '--') {
+        var numOld = parseFloat(oldVal);
+        var numNew = parseFloat(newVal);
+        if (!isNaN(numOld) && !isNaN(numNew)) {
+          animateValue(el, String(newVal), numNew > numOld ? 'up' : 'down');
+          return;
+        }
+      }
+      el.textContent = newVal;
+    }
+  }
+
+  // ── Scores renderer ──
+  function renderScores(scores) {
+    ['NIFTY', 'BANKNIFTY', 'GIFTNIFTY'].forEach(function(idx) {
+      var s = scores[idx] || {};
+      var val = s.total_score != null ? s.total_score : '--';
+      var numVal = parseFloat(val);
+      var el = document.getElementById('scoreVal-' + idx);
+      el.textContent = val;
+      el.className = 'score-value ' + (numVal > 0 ? 'positive' : (numVal < 0 ? 'negative' : 'zero'));
+
+      var card = document.getElementById('score-' + idx);
+      card.className = 'score-card ' + (numVal > 0 ? 'bull' : (numVal < 0 ? 'bear' : 'neutral'));
+
+      document.getElementById('bias-' + idx).textContent = s.bias || '--';
+      document.getElementById('bias-' + idx).className = 'bias ' + biasClass(s.bias);
+      document.getElementById('conf-' + idx).textContent = s.confidence ? s.confidence + '%' : '--';
+    });
+  }
+
+  // ── Signals renderer ──
+  function renderSignals(signals) {
+    document.getElementById('signalCount').textContent = signals.length;
+    var body = document.getElementById('signalsBody');
+    if (!signals.length) {
+      body.innerHTML = '<tr><td colspan="9" class="empty-msg">Waiting for signals...</td></tr>';
+      return;
+    }
+    body.innerHTML = signals.map(function(s) {
+      var dirClass = (s.direction || '').toLowerCase() === 'buy' ? 'tag-buy' : 'tag-sell';
+      return '<tr>' +
+        '<td>' + (s.time || '--') + '</td>' +
+        '<td>' + (s.index || '--') + '</td>' +
+        '<td><span class="tag ' + dirClass + '">' + (s.direction || '--') + '</span></td>' +
+        '<td>' + (s.score || '--') + '</td>' +
+        '<td>' + (s.entry || '--') + '</td>' +
+        '<td>' + (s.sl || '--') + '</td>' +
+        '<td>' + (s.t1 || '--') + '</td>' +
+        '<td>' + (s.t2 || '--') + '</td>' +
+        '<td>' + (s.status || '--') + '</td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  function appendSignal(s) {
+    var body = document.getElementById('signalsBody');
+    if (body.querySelector('.empty-msg')) body.innerHTML = '';
+    var dirClass = (s.direction || '').toLowerCase() === 'buy' ? 'tag-buy' : 'tag-sell';
+    var row = '<tr style="animation:fadeIn 0.5s">' +
+      '<td>' + (s.time || '--') + '</td>' +
+      '<td>' + (s.index || '--') + '</td>' +
+      '<td><span class="tag ' + dirClass + '">' + (s.direction || '--') + '</span></td>' +
+      '<td>' + (s.score || '--') + '</td>' +
+      '<td>' + (s.entry || '--') + '</td>' +
+      '<td>' + (s.sl || '--') + '</td>' +
+      '<td>' + (s.t1 || '--') + '</td>' +
+      '<td>' + (s.t2 || '--') + '</td>' +
+      '<td>' + (s.status || '--') + '</td>' +
+      '</tr>';
+    body.insertAdjacentHTML('afterbegin', row);
+    var cnt = parseInt(document.getElementById('signalCount').textContent || '0');
+    document.getElementById('signalCount').textContent = cnt + 1;
+  }
+
+  // ── Positions renderer ──
+  function renderPositions(positions) {
+    document.getElementById('posCount').textContent = positions.length;
+    document.getElementById('riskOpenPos').textContent = positions.length;
+    var body = document.getElementById('positionsBody');
+    if (!positions.length) {
+      body.innerHTML = '<tr><td colspan="8" class="empty-msg">No open positions</td></tr>';
+      return;
+    }
+    body.innerHTML = positions.map(function(p) {
+      var pnl = p.pnl || 0;
+      var instrument = p.instrument || '--';
+      var prevPnl = prevPnls[instrument] || 0;
+      var pnlDir = pnl > prevPnl ? 'flash-green' : (pnl < prevPnl ? 'flash-red' : '');
+      prevPnls[instrument] = pnl;
+
+      return '<tr class="' + pnlDir + '">' +
+        '<td>' + instrument + '</td>' +
+        '<td>' + (p.qty || '--') + '</td>' +
+        '<td>' + (p.entry_price || '--') + '</td>' +
+        '<td class="num-transition">' + (p.ltp || '--') + '</td>' +
+        '<td class="' + pnlClass(pnl) + ' num-transition">' + (pnl >= 0 ? '+' : '') + pnl.toFixed(2) + '</td>' +
+        '<td>' + (p.sl || '--') + '</td>' +
+        '<td>' + (p.target || '--') + '</td>' +
+        '<td>' + (p.status || 'ACTIVE') + '</td>' +
+        '</tr>';
+    }).join('');
+
+    setTimeout(function() {
+      var rows = body.querySelectorAll('.flash-green, .flash-red');
+      rows.forEach(function(r) { r.classList.remove('flash-green', 'flash-red'); });
+    }, 600);
+  }
+
+  // ── Astro renderer ──
+  function renderAstro(a) {
+    document.getElementById('astroNakshatra').textContent = a.nakshatra || '--';
+    document.getElementById('astroTithi').textContent = a.tithi || '--';
+    document.getElementById('astroHora').textContent = a.hora || '--';
+    document.getElementById('astroYoga').textContent = a.yoga || '--';
+    document.getElementById('astroMoonSign').textContent = a.moon_sign || '--';
+    document.getElementById('astroAspect').textContent = a.primary_aspect || '--';
+    document.getElementById('astroScore').textContent = a.score != null ? a.score : '--';
+    var biasEl = document.getElementById('astroBias');
+    biasEl.textContent = a.bias || '--';
+    biasEl.className = 'astro-value ' + biasClass(a.bias);
+  }
+
+  // ── OI renderer ──
+  function renderOI(oiAll) {
+    var niftyOI = oiAll['NIFTY'] || {};
+    renderOIData(niftyOI);
+  }
+
+  function renderOISingle(index, data) {
+    if (index === 'NIFTY') renderOIData(data);
+  }
+
+  function renderOIData(o) {
+    document.getElementById('oiMaxPain').textContent = o.max_pain || '--';
+    updateOIField('oiPCR', o.pcr != null ? o.pcr.toFixed(2) : '--');
+    document.getElementById('oiCEWall').textContent = o.ce_wall || '--';
+    document.getElementById('oiPEWall').textContent = o.pe_wall || '--';
+    var biasEl = document.getElementById('oiBias');
+    biasEl.textContent = o.bias || '--';
+    biasEl.className = 'oi-val ' + biasClass(o.bias);
+    document.getElementById('oiCEChg').textContent = o.ce_oi_change || '--';
+    document.getElementById('oiPEChg').textContent = o.pe_oi_change || '--';
+    document.getElementById('oiSpot').textContent = o.spot || '--';
+  }
+
+  // ── Sector heatmap ──
+  function renderSectors(sectors) {
+    var grid = document.getElementById('sectorGrid');
+    var keys = Object.keys(sectors);
+    if (!keys.length) {
+      grid.innerHTML = '<div class="empty-msg" style="grid-column:1/-1">Loading sectors...</div>';
+      return;
+    }
+    grid.innerHTML = keys.map(function(name) {
+      var s = sectors[name];
+      var impact = s.impact || s.change || s.change_pct || 0;
+      var bg, fg;
+      if (impact > 1) { bg = 'rgba(0,200,83,0.3)'; fg = 'var(--green)'; }
+      else if (impact > 0) { bg = 'rgba(0,200,83,0.15)'; fg = 'var(--green)'; }
+      else if (impact < -1) { bg = 'rgba(255,23,68,0.3)'; fg = 'var(--red)'; }
+      else if (impact < 0) { bg = 'rgba(255,23,68,0.15)'; fg = 'var(--red)'; }
+      else { bg = 'rgba(255,214,0,0.1)'; fg = 'var(--yellow)'; }
+      return '<div class="sector-cell" style="background:' + bg + ';animation:fadeIn 0.5s">' +
+        '<div class="name">' + name + '</div>' +
+        '<div class="val" style="color:' + fg + '">' + (impact >= 0 ? '+' : '') + impact.toFixed(1) + '%</div>' +
+        '</div>';
+    }).join('');
+  }
+
+  // ── Weekly forecast ──
+  function renderWeekly(forecast) {
+    var body = document.getElementById('weeklyBody');
+    var days = forecast.days || [];
+    if (!days.length) {
+      body.innerHTML = '<tr><td colspan="6" class="empty-msg">Forecast not generated yet</td></tr>';
+      return;
+    }
+    body.innerHTML = days.map(function(d) {
+      return '<tr>' +
+        '<td>' + (d.day || '--') + '</td>' +
+        '<td>' + (d.range || '--') + '</td>' +
+        '<td class="bull">' + (d.bull_pct || '--') + '</td>' +
+        '<td class="bear">' + (d.bear_pct || '--') + '</td>' +
+        '<td>' + (d.key_levels || '--') + '</td>' +
+        '<td>' + (d.astro_note || '--') + '</td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  // ── Trade log ──
+  function renderTrades(trades) {
+    document.getElementById('tradeCount').textContent = trades.length;
+    var body = document.getElementById('tradeLogBody');
+    if (!trades.length) {
+      body.innerHTML = '<tr><td colspan="7" class="empty-msg">No trades today</td></tr>';
+      return;
+    }
+    body.innerHTML = trades.map(function(t) {
+      var pnl = t.pnl || 0;
+      return '<tr>' +
+        '<td>' + (t.time || '--') + '</td>' +
+        '<td>' + (t.index || '--') + '</td>' +
+        '<td><span class="tag ' + ((t.direction || '').toLowerCase() === 'buy' ? 'tag-buy' : 'tag-sell') + '">' + (t.direction || '--') + '</span></td>' +
+        '<td>' + (t.entry || '--') + '</td>' +
+        '<td>' + (t.exit || '--') + '</td>' +
+        '<td class="' + pnlClass(pnl) + '">' + (pnl >= 0 ? '+' : '') + pnl.toFixed(2) + '</td>' +
+        '<td>' + (t.reason || '--') + '</td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  function appendTrade(t) {
+    var body = document.getElementById('tradeLogBody');
+    if (body.querySelector('.empty-msg')) body.innerHTML = '';
+    var pnl = t.pnl || 0;
+    var row = '<tr style="animation:fadeIn 0.5s">' +
+      '<td>' + (t.time || '--') + '</td>' +
+      '<td>' + (t.index || '--') + '</td>' +
+      '<td><span class="tag ' + ((t.direction || '').toLowerCase() === 'buy' ? 'tag-buy' : 'tag-sell') + '">' + (t.direction || '--') + '</span></td>' +
+      '<td>' + (t.entry || '--') + '</td>' +
+      '<td>' + (t.exit || '--') + '</td>' +
+      '<td class="' + pnlClass(pnl) + '">' + (pnl >= 0 ? '+' : '') + pnl.toFixed(2) + '</td>' +
+      '<td>' + (t.reason || '--') + '</td>' +
+      '</tr>';
+    body.insertAdjacentHTML('afterbegin', row);
+    var cnt = parseInt(document.getElementById('tradeCount').textContent || '0');
+    document.getElementById('tradeCount').textContent = cnt + 1;
+  }
+
+  // ── P&L renderer ──
+  function renderPnl(pnl) {
+    var dayPnl = pnl.realized || pnl.total || 0;
+    var el = document.getElementById('riskDayPnl');
+    var oldText = el.textContent;
+    var newText = (dayPnl >= 0 ? '+' : '') + dayPnl.toFixed(2);
+    if (oldText !== newText && oldText !== '--') {
+      var oldVal = parseFloat(oldText.replace('+', ''));
+      animateValue(el, newText, dayPnl > oldVal ? 'up' : 'down');
+    } else {
+      el.textContent = newText;
+    }
+    el.className = pnlClass(dayPnl);
+
+    document.getElementById('riskMaxLoss').textContent = pnl.max_loss || '--';
+    document.getElementById('riskDrawdown').textContent = pnl.drawdown || '--';
+
+    var riskEl = document.getElementById('riskLevel');
+    var rl = (pnl.risk_level || 'NORMAL').toUpperCase();
+    riskEl.textContent = rl;
+    riskEl.className = 'risk-level ' + (rl === 'HIGH' || rl === 'CRITICAL' ? 'bear' : (rl === 'LOW' ? 'bull' : 'neutral'));
+  }
+
+  // ── Health renderer ──
+  function renderHealth(health) {
+    Object.keys(health).forEach(function(mod) {
+      var dot = document.getElementById('h-' + mod);
+      if (dot) {
+        dot.className = 'health-dot ' + health[mod];
+      }
+    });
+  }
+
+  // ── Init ──
+  connectWS();
+
+})();
+</script>
+
+</body>
+</html>
