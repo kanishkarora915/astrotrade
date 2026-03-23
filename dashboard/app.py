@@ -1039,18 +1039,20 @@ async def on_startup():
     logger.info("AstroNifty Dashboard (Multi-User) starting on http://0.0.0.0:8888")
     logger.info("JWT secret configured ({}...)", JWT_SECRET[:8])
 
-    # Initialize database manager
+    # Initialize database manager and create tables
     try:
         db_manager = DBManager()
+        db_manager.create_tables()
         set_module_health("database", "green")
-        logger.success("Database manager initialized")
+        logger.success("Database manager initialized + tables created")
     except Exception as exc:
         logger.error("Failed to initialize database: {}", exc)
         set_module_health("database", "red")
         raise
 
-    # Initialize user manager with DB
-    user_manager = UserManager(db_manager)
+    # Initialize user manager with DB (only if not already injected by main.py)
+    if user_manager is None:
+        user_manager = UserManager(db_manager)
 
     # Restore persisted user sessions from DB
     user_manager.restore_sessions()
