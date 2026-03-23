@@ -74,11 +74,12 @@ def print_banner():
 
 def run_dashboard_only():
     """Start only the dashboard server (users login via browser)."""
-    logger.info("Starting dashboard server only (multi-user)...")
+    port = int(os.getenv("PORT", "8888"))
+    logger.info(f"Starting dashboard server only (multi-user) on port {port}...")
     import uvicorn
     from dashboard.app import app
 
-    uvicorn.run(app, host="0.0.0.0", port=8888)
+    uvicorn.run(app, host="0.0.0.0", port=port)
 
 
 def run_weekly_forecast():
