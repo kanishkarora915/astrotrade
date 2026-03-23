@@ -3,589 +3,232 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ASTRONIFTY ENGINE — Login</title>
+<title>ASTRONIFTY ENGINE</title>
 <style>
-  :root {
-    --bg-primary: #0a0a0a;
-    --bg-secondary: #111111;
-    --bg-card: #161616;
-    --bg-card-hover: #1a1a1a;
-    --border: #2a2a2a;
-    --text-primary: #e0e0e0;
-    --text-secondary: #888888;
-    --text-muted: #555555;
-    --green: #00c853;
-    --green-dim: #00802e;
-    --red: #ff1744;
-    --red-dim: #991030;
-    --yellow: #ffd600;
-    --blue: #2979ff;
-    --cyan: #00e5ff;
-    --orange: #ff9100;
-    --font-mono: 'Courier New', 'Consolas', monospace;
-    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  }
-
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
   body {
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    font-family: var(--font-sans);
+    background: #0a0a0a;
+    color: #e0e0e0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
   }
-
-  /* Animated background grid */
-  .bg-grid {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background-image:
-      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    z-index: 0;
-    animation: gridPulse 8s ease-in-out infinite;
-  }
-
-  @keyframes gridPulse {
-    0%, 100% { opacity: 0.3; }
-    50% { opacity: 0.7; }
-  }
-
-  /* Floating particles */
-  .particles {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    z-index: 0;
-    pointer-events: none;
-  }
-
-  .particle {
-    position: absolute;
-    width: 2px; height: 2px;
-    background: var(--cyan);
-    border-radius: 50%;
-    opacity: 0;
-    animation: floatUp 6s ease-in-out infinite;
-  }
-
-  .particle:nth-child(1) { left: 10%; animation-delay: 0s; animation-duration: 7s; }
-  .particle:nth-child(2) { left: 25%; animation-delay: 1.2s; animation-duration: 5s; }
-  .particle:nth-child(3) { left: 40%; animation-delay: 2.5s; animation-duration: 8s; }
-  .particle:nth-child(4) { left: 55%; animation-delay: 0.8s; animation-duration: 6s; }
-  .particle:nth-child(5) { left: 70%; animation-delay: 3.1s; animation-duration: 7s; }
-  .particle:nth-child(6) { left: 85%; animation-delay: 1.7s; animation-duration: 5.5s; }
-  .particle:nth-child(7) { left: 15%; animation-delay: 4s; animation-duration: 6.5s; }
-  .particle:nth-child(8) { left: 60%; animation-delay: 2s; animation-duration: 8s; }
-
-  @keyframes floatUp {
-    0% { transform: translateY(100vh) scale(0); opacity: 0; }
-    20% { opacity: 0.6; }
-    80% { opacity: 0.3; }
-    100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
-  }
-
-  /* Login container */
-  .login-container {
-    position: relative;
-    z-index: 10;
-    width: 440px;
+  .card {
+    width: 420px;
     max-width: 95vw;
-  }
-
-  .login-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
+    background: #161616;
+    border: 1px solid #2a2a2a;
     border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(0,229,255,0.05);
-    animation: cardSlideIn 0.6s ease-out;
   }
-
-  @keyframes cardSlideIn {
-    from { opacity: 0; transform: translateY(30px) scale(0.96); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-  }
-
-  /* Header */
-  .login-header {
-    background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
-    border-bottom: 1px solid var(--border);
+  .header {
+    background: #111;
+    border-bottom: 1px solid #2a2a2a;
     padding: 28px 32px 24px;
     text-align: center;
   }
-
-  .login-logo {
-    font-family: var(--font-mono);
-    font-size: 22px;
+  .logo {
+    font-family: 'Courier New', monospace;
+    font-size: 20px;
     font-weight: 700;
     letter-spacing: 3px;
-    color: var(--cyan);
-    margin-bottom: 6px;
+    color: #00e5ff;
   }
-
-  .login-logo .sub {
+  .sub {
     display: block;
     font-size: 10px;
     letter-spacing: 4px;
-    color: var(--text-muted);
+    color: #555;
     font-weight: 400;
-    margin-top: 6px;
+    margin-top: 8px;
   }
-
-  .login-subtitle {
+  .subtitle {
     font-size: 12px;
-    color: var(--text-secondary);
+    color: #888;
     margin-top: 4px;
-    font-family: var(--font-mono);
-    letter-spacing: 1px;
+    font-family: 'Courier New', monospace;
   }
-
-  /* Form body */
-  .login-body {
-    padding: 28px 32px 32px;
-  }
-
-  .form-group {
-    margin-bottom: 18px;
-  }
-
-  .form-label {
+  .body { padding: 28px 32px 32px; }
+  .form-group { margin-bottom: 18px; }
+  .label {
     display: block;
-    font-family: var(--font-mono);
+    font-family: 'Courier New', monospace;
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 1.5px;
     text-transform: uppercase;
-    color: var(--text-secondary);
+    color: #888;
     margin-bottom: 6px;
   }
-
-  .form-input {
+  .input {
     width: 100%;
     padding: 12px 14px;
-    background: var(--bg-primary);
-    border: 1px solid var(--border);
+    background: #0a0a0a;
+    border: 1px solid #2a2a2a;
     border-radius: 4px;
-    color: var(--text-primary);
-    font-family: var(--font-mono);
+    color: #e0e0e0;
+    font-family: 'Courier New', monospace;
     font-size: 13px;
-    letter-spacing: 0.5px;
     outline: none;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
   }
-
-  .form-input:focus {
-    border-color: var(--cyan);
-    box-shadow: 0 0 0 2px rgba(0,229,255,0.1);
+  .input:focus {
+    border-color: #00e5ff;
   }
-
-  .form-input::placeholder {
-    color: var(--text-muted);
-    font-size: 12px;
-  }
-
-  /* Buttons */
+  .input::placeholder { color: #555; font-size: 12px; }
   .btn {
     width: 100%;
-    padding: 13px 20px;
+    padding: 14px 20px;
     border: none;
     border-radius: 4px;
-    font-family: var(--font-mono);
+    font-family: 'Courier New', monospace;
     font-size: 12px;
     font-weight: 700;
     letter-spacing: 1.5px;
     text-transform: uppercase;
     cursor: pointer;
-    transition: all 0.2s ease;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .btn-primary {
-    background: linear-gradient(135deg, var(--cyan), var(--blue));
+    background: linear-gradient(135deg, #00e5ff, #2979ff);
     color: #000;
+    margin-top: 8px;
   }
-
-  .btn-primary:hover {
-    box-shadow: 0 4px 20px rgba(0,229,255,0.3);
-    transform: translateY(-1px);
-  }
-
-  .btn-primary:active {
-    transform: translateY(0);
-  }
-
-  .btn-primary:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-  }
-
-  /* Loading animation on button */
-  .btn.loading::after {
-    content: '';
-    position: absolute;
-    top: 0; left: -100%;
-    width: 100%; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-    animation: btnLoading 1.5s ease-in-out infinite;
-  }
-
-  @keyframes btnLoading {
-    0% { left: -100%; }
-    100% { left: 100%; }
-  }
-
-  /* Error / Success messages */
-  .message {
+  .btn:hover { opacity: 0.9; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .msg {
     padding: 10px 14px;
     border-radius: 4px;
-    font-family: var(--font-mono);
+    font-family: 'Courier New', monospace;
     font-size: 11px;
     margin-bottom: 16px;
     display: none;
-    animation: msgFadeIn 0.3s ease;
   }
-
-  @keyframes msgFadeIn {
-    from { opacity: 0; transform: translateY(-8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .message.visible { display: block; }
-
-  .message.error {
-    background: rgba(255,23,68,0.1);
-    border: 1px solid rgba(255,23,68,0.3);
-    color: var(--red);
-  }
-
-  .message.success {
-    background: rgba(0,200,83,0.1);
-    border: 1px solid rgba(0,200,83,0.3);
-    color: var(--green);
-  }
-
-  .message.info {
-    background: rgba(0,229,255,0.1);
-    border: 1px solid rgba(0,229,255,0.3);
-    color: var(--cyan);
-  }
-
-  /* Connected success animation */
-  .success-overlay {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,200,83,0.05);
-    z-index: 100;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    animation: successFade 2s ease forwards;
-  }
-
-  .success-overlay.visible {
-    display: flex;
-  }
-
-  @keyframes successFade {
-    0% { opacity: 0; }
-    30% { opacity: 1; }
-    80% { opacity: 1; }
-    100% { opacity: 0; }
-  }
-
-  .success-check {
-    width: 80px; height: 80px;
-    border: 3px solid var(--green);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 36px;
-    color: var(--green);
-    animation: checkBounce 0.5s ease 0.3s both;
-  }
-
-  @keyframes checkBounce {
-    0% { transform: scale(0); }
-    60% { transform: scale(1.2); }
-    100% { transform: scale(1); }
-  }
-
-  /* Footer */
-  .login-footer {
+  .msg.show { display: block; }
+  .msg.error { background: rgba(255,23,68,0.1); border: 1px solid rgba(255,23,68,0.3); color: #ff1744; }
+  .msg.success { background: rgba(0,200,83,0.1); border: 1px solid rgba(0,200,83,0.3); color: #00c853; }
+  .msg.info { background: rgba(0,229,255,0.1); border: 1px solid rgba(0,229,255,0.3); color: #00e5ff; }
+  .footer {
     padding: 14px 32px;
-    background: var(--bg-secondary);
-    border-top: 1px solid var(--border);
+    background: #111;
+    border-top: 1px solid #2a2a2a;
     text-align: center;
-    font-family: var(--font-mono);
+    font-family: 'Courier New', monospace;
     font-size: 10px;
-    color: var(--text-muted);
-    letter-spacing: 1px;
+    color: #555;
   }
-
-  .login-footer a {
-    color: var(--cyan);
-    text-decoration: none;
-  }
-
-  .login-footer a:hover {
-    text-decoration: underline;
-  }
-
-  /* Active traders counter */
-  .active-traders {
+  .footer a { color: #00e5ff; text-decoration: none; }
+  .traders {
     margin-top: 12px;
-    padding: 8px 0;
     text-align: center;
-    font-family: var(--font-mono);
+    font-family: 'Courier New', monospace;
     font-size: 11px;
-    color: var(--text-muted);
+    color: #555;
   }
-
-  .active-traders .count {
-    color: var(--cyan);
-    font-weight: 700;
-    font-size: 14px;
-  }
-
-  /* Responsive */
-  @media (max-width: 500px) {
-    .login-container { width: 100%; }
-    .login-header { padding: 22px 20px 18px; }
-    .login-body { padding: 20px; }
-    .login-footer { padding: 12px 20px; }
-  }
+  .traders .count { color: #00e5ff; font-weight: 700; font-size: 14px; }
 </style>
 </head>
 <body>
 
-<!-- Background effects -->
-<div class="bg-grid"></div>
-<div class="particles">
-  <div class="particle"></div>
-  <div class="particle"></div>
-  <div class="particle"></div>
-  <div class="particle"></div>
-  <div class="particle"></div>
-  <div class="particle"></div>
-  <div class="particle"></div>
-  <div class="particle"></div>
-</div>
+<div class="card">
+  <div class="header">
+    <div class="logo">
+      ASTRONIFTY ENGINE
+      <span class="sub">ASTROTRADE BY KANISHK ARORA</span>
+    </div>
+    <div class="subtitle">Zerodha Kite Connect</div>
+  </div>
 
-<!-- Success overlay (shown on successful connect) -->
-<div class="success-overlay" id="successOverlay">
-  <div class="success-check">&#10003;</div>
-</div>
+  <div class="body">
+    <div class="msg" id="msg"></div>
 
-<!-- Login card -->
-<div class="login-container">
-  <div class="login-card">
-
-    <!-- Header -->
-    <div class="login-header">
-      <div class="login-logo">
-        ASTRONIFTY ENGINE
-        <span class="sub">ASTROTRADE BY KANISHK ARORA</span>
-      </div>
-      <div class="login-subtitle">Zerodha Kite Connect &mdash; Multi-User</div>
+    <div class="form-group">
+      <label class="label" for="apiKey">API Key</label>
+      <input type="text" id="apiKey" class="input" placeholder="Enter your Kite API Key" autocomplete="off" spellcheck="false">
     </div>
 
-    <!-- Form -->
-    <div class="login-body">
-
-      <!-- Messages -->
-      <div class="message" id="msgBox"></div>
-
-      <!-- Credential form -->
-      <div id="credentialForm">
-        <div class="form-group">
-          <label class="form-label" for="apiKey">API Key</label>
-          <input
-            type="text"
-            id="apiKey"
-            class="form-input"
-            placeholder="Enter your Kite API Key"
-            autocomplete="off"
-            spellcheck="false"
-          >
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="apiSecret">API Secret</label>
-          <input
-            type="password"
-            id="apiSecret"
-            class="form-input"
-            placeholder="Enter your Kite API Secret"
-            autocomplete="off"
-            spellcheck="false"
-          >
-        </div>
-
-        <button class="btn btn-primary" id="btnConnect" onclick="connectToZerodha()">
-          Connect to Zerodha
-        </button>
-      </div>
-
-      <!-- Active traders counter -->
-      <div class="active-traders" id="tradersInfo">
-        <span class="count" id="activeCount">--</span> active traders online
-      </div>
+    <div class="form-group">
+      <label class="label" for="apiSecret">API Secret</label>
+      <input type="password" id="apiSecret" class="input" placeholder="Enter your Kite API Secret" autocomplete="off" spellcheck="false">
     </div>
 
-    <!-- Footer -->
-    <div class="login-footer">
-      Redirect URL: <strong>http://localhost:8888/api/auth/callback</strong>
-      <br>Set this in your <a href="https://developers.kite.trade" target="_blank">Kite Developer App</a>
-    </div>
+    <button class="btn" id="btnConnect" onclick="connect()">Connect to Zerodha</button>
 
+    <div class="traders"><span class="count" id="cnt">--</span> active traders online</div>
+  </div>
+
+  <div class="footer">
+    Set redirect URL in <a href="https://developers.kite.trade" target="_blank">Kite Developer App</a>
   </div>
 </div>
 
 <script>
-// ─── State ───
-var isLoading = false;
+var msg = document.getElementById('msg');
+var btn = document.getElementById('btnConnect');
+var loading = false;
 
-// ─── DOM refs ───
-var msgBox = document.getElementById('msgBox');
-var btnConnect = document.getElementById('btnConnect');
-var successOverlay = document.getElementById('successOverlay');
-
-// ─── URL params (check for callback results) ───
-var urlParams = new URLSearchParams(window.location.search);
-if (urlParams.get('auth') === 'success') {
-  showSuccess();
-  setTimeout(function() { window.location.href = '/'; }, 2000);
+// Check URL params
+var p = new URLSearchParams(window.location.search);
+if (p.get('auth') === 'success') {
+  show('Connected! Redirecting...', 'success');
+  setTimeout(function(){ window.location.href = '/'; }, 1500);
 }
-if (urlParams.get('error')) {
-  var err = urlParams.get('error');
-  var detail = urlParams.get('detail') || '';
-  var errMsg = 'Authentication failed.';
-  if (err === 'no_credentials') errMsg = 'No saved credentials found. Please enter API Key and Secret.';
-  if (err === 'session_failed') errMsg = 'Session generation failed: ' + detail;
-  if (err === 'auth_failed') errMsg = 'Zerodha login was not successful. Please try again.';
-  if (err === 'no_matching_user') errMsg = 'Could not match your session. Please try again.';
-  showMessage(errMsg, 'error');
+if (p.get('error')) {
+  show('Login failed: ' + (p.get('detail') || p.get('error')), 'error');
 }
 
-// ─── Check auth status on load ───
-checkAuthStatus();
-fetchActiveTraders();
-
-async function checkAuthStatus() {
-  try {
-    var res = await fetch('/api/auth/status');
-    var data = await res.json();
-
-    if (data.authenticated) {
-      showMessage('You are already connected. Redirecting to dashboard...', 'success');
-      setTimeout(function() { window.location.href = '/'; }, 1500);
-      return;
-    }
-  } catch (err) {
-    console.error('Auth status check failed:', err);
+// Check if already logged in
+fetch('/api/auth/status').then(function(r){ return r.json(); }).then(function(d){
+  if (d.authenticated) {
+    show('Already connected. Redirecting...', 'success');
+    setTimeout(function(){ window.location.href = '/'; }, 1500);
   }
-}
+}).catch(function(){});
 
-async function fetchActiveTraders() {
-  try {
-    var res = await fetch('/api/admin/users');
-    var data = await res.json();
-    var count = data.active_users || 0;
-    document.getElementById('activeCount').textContent = count;
-  } catch (err) {
-    document.getElementById('activeCount').textContent = '0';
-  }
-}
-
-async function connectToZerodha() {
-  if (isLoading) return;
-
-  var apiKey = document.getElementById('apiKey').value.trim();
-  var apiSecret = document.getElementById('apiSecret').value.trim();
-
-  if (!apiKey || !apiSecret) {
-    showMessage('Please enter both API Key and API Secret.', 'error');
-    return;
-  }
-
-  if (apiKey.length < 6) {
-    showMessage('Invalid API Key format. Please check and try again.', 'error');
-    return;
-  }
-
-  setLoading(true);
-  hideMessage();
-
-  try {
-    // Save credentials and get login URL in one call
-    var res = await fetch('/api/auth/save-credentials', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ api_key: apiKey, api_secret: apiSecret }),
-    });
-
-    var data = await res.json();
-    if (!res.ok) {
-      throw new Error(data.detail || 'Failed to save credentials');
-    }
-
-    if (data.login_url) {
-      showMessage('Redirecting to Zerodha login...', 'success');
-      setTimeout(function() {
-        window.location.href = data.login_url;
-      }, 600);
-    } else {
-      throw new Error('No login URL returned');
-    }
-
-  } catch (err) {
-    showMessage(err.message, 'error');
-    setLoading(false);
-  }
-}
-
-// ─── UI Helpers ───
-function showMessage(text, type) {
-  msgBox.textContent = text;
-  msgBox.className = 'message visible ' + type;
-}
-
-function hideMessage() {
-  msgBox.className = 'message';
-}
-
-function setLoading(loading) {
-  isLoading = loading;
-  if (loading) {
-    btnConnect.classList.add('loading');
-    btnConnect.disabled = true;
-  } else {
-    btnConnect.classList.remove('loading');
-    btnConnect.disabled = false;
-  }
-}
-
-function showSuccess() {
-  successOverlay.classList.add('visible');
-}
-
-// Allow Enter key to submit
-document.getElementById('apiSecret').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') connectToZerodha();
+// Active traders count
+fetch('/api/admin/users').then(function(r){ return r.json(); }).then(function(d){
+  document.getElementById('cnt').textContent = d.active_users || 0;
+}).catch(function(){
+  document.getElementById('cnt').textContent = '0';
 });
-document.getElementById('apiKey').addEventListener('keydown', function(e) {
+
+function connect() {
+  if (loading) return;
+  var key = document.getElementById('apiKey').value.trim();
+  var secret = document.getElementById('apiSecret').value.trim();
+  if (!key || !secret) { show('Enter both API Key and Secret', 'error'); return; }
+
+  loading = true;
+  btn.disabled = true;
+  btn.textContent = 'CONNECTING...';
+  hide();
+
+  fetch('/api/auth/save-credentials', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({api_key: key, api_secret: secret})
+  }).then(function(r){ return r.json().then(function(d){ return {ok: r.ok, data: d}; }); })
+  .then(function(res){
+    if (!res.ok) throw new Error(res.data.detail || 'Failed');
+    if (res.data.login_url) {
+      show('Redirecting to Zerodha...', 'success');
+      setTimeout(function(){ window.location.href = res.data.login_url; }, 500);
+    } else {
+      throw new Error('No login URL');
+    }
+  }).catch(function(e){
+    show(e.message, 'error');
+    loading = false;
+    btn.disabled = false;
+    btn.textContent = 'CONNECT TO ZERODHA';
+  });
+}
+
+function show(t, type) { msg.textContent = t; msg.className = 'msg show ' + type; }
+function hide() { msg.className = 'msg'; }
+
+document.getElementById('apiSecret').addEventListener('keydown', function(e){
+  if (e.key === 'Enter') connect();
+});
+document.getElementById('apiKey').addEventListener('keydown', function(e){
   if (e.key === 'Enter') document.getElementById('apiSecret').focus();
 });
 </script>
