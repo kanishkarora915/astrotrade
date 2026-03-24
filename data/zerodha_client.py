@@ -524,7 +524,8 @@ class ZerodhaClient:
             return pd.DataFrame()
 
         # Determine ATM strike from spot LTP
-        spot_symbol = INDICES.get(index, f"NSE:{index} 50")
+        idx_config = INDICES.get(index, {})
+        spot_symbol = idx_config.get("symbol", f"NSE:{index}")
         spot_ltp_data = self.get_ltp([spot_symbol])
         spot_price = list(spot_ltp_data.values())[0]
 

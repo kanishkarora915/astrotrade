@@ -3,692 +3,959 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ASTRONIFTY ENGINE</title>
+<title>ASTRONIFTY ENGINE — AstroTrade Terminal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg-primary: #0a0a0a;
-    --bg-secondary: #111111;
-    --bg-card: #161616;
-    --bg-card-hover: #1a1a1a;
-    --border: #2a2a2a;
-    --text-primary: #e0e0e0;
-    --text-secondary: #888888;
-    --text-muted: #555555;
-    --green: #00c853;
-    --green-dim: #00802e;
-    --red: #ff1744;
-    --red-dim: #991030;
-    --yellow: #ffd600;
-    --yellow-dim: #9e8500;
-    --blue: #2979ff;
-    --cyan: #00e5ff;
-    --orange: #ff9100;
-    --font-mono: 'Courier New', 'Consolas', monospace;
-    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  }
+/* ═══════════════════════════════════════════════════════
+   ASTRONIFTY BLOOMBERG TERMINAL — CSS DESIGN SYSTEM
+   ═══════════════════════════════════════════════════════ */
+:root {
+  --bg:         #0a0a0a;
+  --bg-card:    #111111;
+  --bg-row:     #141414;
+  --bg-hover:   #1a1a1a;
+  --border:     #1a1a1a;
+  --border-mid: #222222;
+  --border-hi:  #2a2a2a;
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  --text:       #c8c8c8;
+  --text-dim:   #666666;
+  --text-mid:   #888888;
+  --text-hi:    #e0e0e0;
 
-  body {
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    font-family: var(--font-sans);
-    font-size: 13px;
-    overflow-x: hidden;
-  }
+  --green:      #00e676;
+  --green-dim:  #003d1a;
+  --green-mid:  #00802e;
+  --red:        #ff1744;
+  --red-dim:    #3d0010;
+  --red-mid:    #991030;
+  --yellow:     #ffd600;
+  --yellow-dim: #332b00;
+  --cyan:       #00e5ff;
+  --cyan-dim:   #003d44;
+  --orange:     #ff9100;
+  --orange-dim: #3d2200;
 
-  /* ── Header ── */
-  .header {
-    background: linear-gradient(90deg, #0d0d0d, #1a1a1a);
-    border-bottom: 1px solid var(--border);
-    padding: 10px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .header-title {
-    font-family: var(--font-mono);
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    color: var(--cyan);
-  }
-  .header-title span { color: var(--text-muted); font-weight: 400; font-size: 11px; }
-  .header-status {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    font-family: var(--font-mono);
-    font-size: 11px;
-  }
+  --font: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
 
-  /* ── User info bar ── */
-  .user-bar {
-    background: var(--bg-secondary);
-    border-bottom: 1px solid var(--border);
-    padding: 6px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-family: var(--font-mono);
-    font-size: 11px;
-  }
-  .user-info {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    color: var(--text-secondary);
-  }
-  .user-name {
-    color: var(--cyan);
-    font-weight: 700;
-    letter-spacing: 0.5px;
-  }
-  .user-id-label {
-    color: var(--text-muted);
-  }
-  .user-capital {
-    color: var(--green);
-    font-weight: 700;
-  }
-  .user-actions {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .mode-toggle {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    cursor: pointer;
-    padding: 3px 10px;
-    border-radius: 3px;
-    border: 1px solid var(--border);
-    background: transparent;
-    transition: all 0.2s ease;
-  }
-  .mode-toggle.paper {
-    border-color: var(--yellow-dim);
-    color: var(--yellow);
-  }
-  .mode-toggle.live {
-    border-color: var(--green-dim);
-    color: var(--green);
-  }
-  .mode-dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    display: inline-block;
-  }
-  .mode-dot.paper { background: var(--yellow); }
-  .mode-dot.live { background: var(--green); animation: blink 1s ease-in-out infinite; }
-  .btn-logout {
-    padding: 3px 12px;
-    border-radius: 3px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--text-muted);
-    font-family: var(--font-mono);
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-  .btn-logout:hover {
-    border-color: var(--red);
-    color: var(--red);
-    background: rgba(255,23,68,0.05);
-  }
+  --radius: 2px;
+  --gap: 6px;
+}
 
-  .live-badge {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    padding: 2px 8px;
-    border-radius: 3px;
-    font-weight: 700;
-    font-size: 10px;
-    letter-spacing: 1px;
-  }
-  .live-badge.connected {
-    background: rgba(0,200,83,0.15);
-    color: var(--green);
-    border: 1px solid var(--green-dim);
-  }
-  .live-badge.disconnected {
-    background: rgba(255,23,68,0.15);
-    color: var(--red);
-    border: 1px solid var(--red-dim);
-  }
-  .live-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    display: inline-block;
-  }
-  .live-dot.connected {
-    background: var(--green);
-    animation: blink 1s ease-in-out infinite;
-  }
-  .live-dot.disconnected { background: var(--red); }
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
-  }
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 12px;
+  line-height: 1.4;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
 
-  .tick-counter {
-    color: var(--text-muted);
-    font-size: 10px;
-  }
-  .tick-counter .count { color: var(--cyan); font-weight: 700; }
-  .data-freshness {
-    font-size: 10px;
-    color: var(--text-muted);
-  }
-  .data-freshness.fresh { color: var(--green); }
-  .data-freshness.stale { color: var(--yellow); }
-  .data-freshness.dead { color: var(--red); }
-  .clock { color: var(--text-secondary); }
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 2px; }
 
-  /* ── Grid layout ── */
-  .dashboard {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: auto;
-    gap: 8px;
-    padding: 8px;
-    min-height: calc(100vh - 90px);
-  }
+/* ═══════════════════ TOP BAR ═══════════════════ */
+#topBar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 0 16px;
+  height: 44px;
+  background: #0d0d0d;
+  border-bottom: 1px solid var(--border-mid);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
 
-  /* ── Card ── */
-  .card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    overflow: hidden;
-  }
-  .card-header {
-    background: var(--bg-secondary);
-    padding: 6px 10px;
-    font-family: var(--font-mono);
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--text-secondary);
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+.tb-brand {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.tb-logo {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--cyan);
+  text-transform: uppercase;
+  line-height: 1;
+}
+.tb-sub {
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
 
-  .card-body { padding: 10px; }
+#userBar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+}
+#userBar .sep { color: var(--border-hi); }
+#userName  { color: var(--cyan); font-weight: 600; }
+#userZerodhaId { color: var(--text-mid); }
+#userCapital   { color: var(--green); font-weight: 600; }
 
-  /* ── Score cards row ── */
-  .score-cards { grid-column: 1 / 4; display: flex; gap: 8px; }
-  .score-card {
-    flex: 1;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 12px;
-    text-align: center;
-    transition: border-color 0.3s ease;
-  }
-  .score-card.bull { border-color: var(--green-dim); }
-  .score-card.bear { border-color: var(--red-dim); }
-  .score-card.neutral { border-color: var(--yellow-dim); }
-  .score-index {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--text-secondary);
-    letter-spacing: 2px;
-    margin-bottom: 6px;
-  }
-  .score-value {
-    font-family: var(--font-mono);
-    font-size: 32px;
-    font-weight: 700;
-    line-height: 1;
-    transition: color 0.3s ease;
-  }
-  .score-value.positive { color: var(--green); }
-  .score-value.negative { color: var(--red); }
-  .score-value.zero { color: var(--yellow); }
+.tb-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 
-  /* ── Live price under score ── */
-  .live-price {
-    margin-top: 6px;
-    font-family: var(--font-mono);
-    font-size: 16px;
-    font-weight: 700;
-    transition: color 0.15s ease;
-  }
-  .live-price-change {
-    font-size: 11px;
-    margin-top: 2px;
-    font-family: var(--font-mono);
-  }
+.tb-clock {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-hi);
+  letter-spacing: 1px;
+  min-width: 76px;
+  text-align: right;
+}
+.tb-ist { font-size: 9px; color: var(--text-dim); margin-left: 2px; }
 
-  .score-meta {
-    margin-top: 8px;
-    font-size: 11px;
-    color: var(--text-secondary);
-    display: flex;
-    justify-content: center;
-    gap: 16px;
-  }
-  .score-meta .bias { font-weight: 700; }
-  .score-meta .confidence { color: var(--text-muted); }
+.data-badge {
+  font-size: 9px;
+  letter-spacing: 1px;
+  padding: 2px 7px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-hi);
+  color: var(--text-dim);
+  font-weight: 600;
+}
+.data-badge.fresh  { color: var(--green); border-color: var(--green-mid); }
+.data-badge.stale  { color: var(--yellow); border-color: #665800; }
+.data-badge.dead   { color: var(--red); border-color: var(--red-mid); }
 
-  /* ── Flash animations for price changes ── */
-  .flash-green { animation: flashGreen 0.6s ease-out; }
-  .flash-red { animation: flashRed 0.6s ease-out; }
-  @keyframes flashGreen {
-    0% { background: rgba(0,200,83,0.3); }
-    100% { background: transparent; }
-  }
-  @keyframes flashRed {
-    0% { background: rgba(255,23,68,0.3); }
-    100% { background: transparent; }
-  }
+.tick-badge {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+}
+.tick-badge .tv { color: var(--cyan); font-weight: 700; }
 
-  .num-transition { transition: color 0.15s ease; }
-  .num-up { color: var(--green) !important; }
-  .num-down { color: var(--red) !important; }
+.live-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: var(--radius);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  border: 1px solid;
+  cursor: default;
+}
+.live-badge.connected    { color: var(--green); border-color: var(--green-mid); background: rgba(0,230,118,0.06); }
+.live-badge.disconnected { color: var(--red);   border-color: var(--red-mid);   background: rgba(255,23,68,0.06); }
 
-  /* ── Risk status ── */
-  .risk-card { grid-column: 4 / 5; }
-  .risk-status { text-align: center; padding: 12px; }
-  .risk-level {
-    font-family: var(--font-mono);
-    font-size: 24px;
-    font-weight: 700;
-    letter-spacing: 2px;
-  }
-  .risk-details { margin-top: 8px; font-size: 11px; color: var(--text-secondary); }
-  .risk-details div { margin: 3px 0; }
+.live-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.live-dot.connected    { background: var(--green); animation: pulse 1.4s ease-in-out infinite; }
+.live-dot.disconnected { background: var(--red); }
 
-  /* ── Signals panel ── */
-  .signals-panel { grid-column: 1 / 3; }
+@keyframes pulse {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.35; transform: scale(0.85); }
+}
 
-  /* ── Positions panel ── */
-  .positions-panel { grid-column: 3 / 5; }
+.mode-btn {
+  display: flex; align-items: center; gap: 5px;
+  padding: 3px 10px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-hi);
+  background: transparent;
+  font-family: var(--font);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--text-dim);
+}
+.mode-btn.paper { border-color: #665800; color: var(--yellow); }
+.mode-btn.live  { border-color: var(--green-mid); color: var(--green); }
+.mode-dot { width: 6px; height: 6px; border-radius: 50%; }
+.mode-dot.paper { background: var(--yellow); animation: pulse 1.8s ease-in-out infinite; }
+.mode-dot.live  { background: var(--green); animation: pulse 1.2s ease-in-out infinite; }
 
-  /* ── Table styles ── */
-  .data-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-family: var(--font-mono);
-    font-size: 11px;
-  }
-  .data-table th {
-    text-align: left;
-    padding: 4px 6px;
-    color: var(--text-muted);
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    border-bottom: 1px solid var(--border);
-  }
-  .data-table td {
-    padding: 5px 6px;
-    border-bottom: 1px solid #1e1e1e;
-    white-space: nowrap;
-    transition: background 0.3s ease;
-  }
-  .data-table tr:hover { background: var(--bg-card-hover); }
+.btn-logout {
+  padding: 3px 10px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-hi);
+  background: transparent;
+  font-family: var(--font);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-logout:hover { border-color: var(--red); color: var(--red); background: rgba(255,23,68,0.06); }
 
-  /* ── Astro panel ── */
-  .astro-panel { grid-column: 1 / 2; }
-  .astro-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px;
-  }
-  .astro-item {
-    background: var(--bg-secondary);
-    padding: 8px;
-    border-radius: 3px;
-    border-left: 3px solid var(--cyan);
-  }
-  .astro-label {
-    font-size: 9px;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-  .astro-value {
-    font-family: var(--font-mono);
-    font-size: 13px;
-    color: var(--cyan);
-    margin-top: 2px;
-  }
+/* ═══════════════════ MAIN GRID ═══════════════════ */
+.terminal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  padding: var(--gap);
+  min-height: calc(100vh - 44px - 30px);
+}
 
-  /* ── OI panel ── */
-  .oi-panel { grid-column: 2 / 3; }
-  .oi-stat {
-    display: flex;
-    justify-content: space-between;
-    padding: 5px 0;
-    border-bottom: 1px solid #1e1e1e;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    transition: background 0.3s ease;
-  }
-  .oi-label { color: var(--text-secondary); }
-  .oi-val { font-weight: 700; transition: color 0.15s ease; }
+/* Generic card */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
 
-  /* ── Sector heatmap ── */
-  .sector-panel { grid-column: 3 / 5; }
-  .sector-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 4px;
-  }
-  .sector-cell {
-    padding: 8px 6px;
-    text-align: center;
-    border-radius: 3px;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    transition: background 0.5s ease, transform 0.2s ease;
-  }
-  .sector-cell:hover { transform: scale(1.03); }
-  .sector-cell .name { font-size: 9px; color: rgba(255,255,255,0.7); }
-  .sector-cell .val { font-size: 13px; font-weight: 700; margin-top: 2px; transition: color 0.3s ease; }
+.card-hd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 10px;
+  border-bottom: 1px solid var(--border);
+  background: #0e0e0e;
+  flex-shrink: 0;
+}
+.card-hd-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--text-mid);
+  text-transform: uppercase;
+}
+.card-hd-title.accent { border-left: 3px solid var(--cyan); padding-left: 7px; }
+.card-hd-badge {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 1px 6px;
+  border-radius: var(--radius);
+  background: var(--bg-hover);
+  color: var(--text-dim);
+  border: 1px solid var(--border-hi);
+}
+.card-hd-badge.cnt { color: var(--cyan); border-color: var(--cyan-dim); }
 
-  /* ── Weekly forecast ── */
-  .weekly-panel { grid-column: 1 / 3; }
+.card-body { padding: 8px 10px; flex: 1; overflow: auto; }
+.card-body-tight { padding: 0; flex: 1; overflow: auto; }
 
-  /* ── Trade log ── */
-  .trade-log-panel { grid-column: 3 / 5; }
+/* ═══════════════════ ROW 1: INDEX CARDS + RISK ═══════════════════ */
+.row-indices {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr) 240px;
+  gap: var(--gap);
+}
 
-  /* ── Module health bar ── */
-  .health-bar {
-    display: flex;
-    gap: 6px;
-    padding: 6px 20px;
-    background: var(--bg-secondary);
-    border-top: 1px solid var(--border);
-    font-family: var(--font-mono);
-    font-size: 10px;
-  }
-  .health-item {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    color: var(--text-muted);
-  }
-  .health-dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    transition: background 0.3s ease;
-  }
-  .health-dot.green { background: var(--green); }
-  .health-dot.yellow { background: var(--yellow); }
-  .health-dot.red { background: var(--red); }
+/* Index Card */
+.idx-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px 10px;
+  position: relative;
+  transition: border-color 0.4s ease;
+  overflow: hidden;
+}
+.idx-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--border-hi);
+  transition: background 0.4s ease;
+}
+.idx-card.bull { border-color: rgba(0,230,118,0.25); }
+.idx-card.bull::before { background: var(--green); }
+.idx-card.bear { border-color: rgba(255,23,68,0.25); }
+.idx-card.bear::before { background: var(--red); }
+.idx-card.neutral { border-color: rgba(255,214,0,0.2); }
+.idx-card.neutral::before { background: var(--yellow); }
 
-  /* ── Utility ── */
-  .bull { color: var(--green) !important; }
-  .bear { color: var(--red) !important; }
-  .neutral { color: var(--yellow) !important; }
-  .tag {
-    display: inline-block;
-    padding: 1px 6px;
-    border-radius: 2px;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-  }
-  .tag-buy { background: var(--green-dim); color: var(--green); }
-  .tag-sell { background: var(--red-dim); color: var(--red); }
-  .tag-hold { background: var(--yellow-dim); color: var(--yellow); }
-  .tag-strong { background: #1a3a1a; color: #4cff4c; }
-  .empty-msg {
-    text-align: center;
-    color: var(--text-muted);
-    padding: 20px;
-    font-style: italic;
-  }
+.idx-name {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.idx-ltp {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  line-height: 1;
+  color: var(--text-hi);
+  transition: color 0.15s;
+}
+.idx-chg {
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 4px;
+  min-height: 16px;
+}
+.idx-chg.bull { color: var(--green); }
+.idx-chg.bear { color: var(--red); }
 
-  @media (max-width: 1200px) {
-    .dashboard { grid-template-columns: repeat(2, 1fr); }
-    .score-cards { grid-column: 1 / -1; flex-wrap: wrap; }
-    .risk-card, .signals-panel, .positions-panel,
-    .astro-panel, .oi-panel, .sector-panel,
-    .weekly-panel, .trade-log-panel { grid-column: 1 / -1; }
-  }
+.idx-ohlc {
+  display: flex;
+  gap: 0;
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+}
+.idx-ohlc-item {
+  flex: 1;
+  text-align: center;
+}
+.idx-ohlc-label {
+  font-size: 8px;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+.idx-ohlc-val {
+  font-size: 10px;
+  color: var(--text-mid);
+}
 
-  @keyframes fadeIn {
-    from { opacity: 0; background: rgba(0,229,255,0.1); }
-    to { opacity: 1; background: transparent; }
-  }
-  @keyframes pulseGreen {
-    0% { box-shadow: 0 0 0 0 rgba(0,200,83,0.4); }
-    70% { box-shadow: 0 0 0 6px rgba(0,200,83,0); }
-    100% { box-shadow: 0 0 0 0 rgba(0,200,83,0); }
-  }
-  @keyframes pulseRed {
-    0% { box-shadow: 0 0 0 0 rgba(255,23,68,0.4); }
-    70% { box-shadow: 0 0 0 6px rgba(255,23,68,0); }
-    100% { box-shadow: 0 0 0 0 rgba(255,23,68,0); }
-  }
+.score-overlay {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 2px 7px;
+  border-radius: var(--radius);
+  background: rgba(0,229,255,0.1);
+  color: var(--cyan);
+  border: 1px solid var(--cyan-dim);
+  display: none;
+}
+.score-overlay.visible { display: block; }
+.score-overlay.bull-score { background: rgba(0,230,118,0.12); color: var(--green); border-color: var(--green-dim); }
+.score-overlay.bear-score { background: rgba(255,23,68,0.12); color: var(--red); border-color: var(--red-dim); }
+
+/* Risk Card */
+.risk-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.risk-hd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 10px;
+  border-bottom: 1px solid var(--border);
+  background: #0e0e0e;
+}
+.risk-hd-title {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 2px; color: var(--text-mid);
+}
+.risk-body { padding: 10px 12px; flex: 1; }
+
+.risk-level-val {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-align: center;
+  padding: 10px 0 12px;
+}
+.risk-level-val.normal  { color: var(--green); }
+.risk-level-val.warning { color: var(--yellow); }
+.risk-level-val.danger  { color: var(--red); animation: glowRed 1s ease-in-out infinite alternate; }
+
+@keyframes glowRed {
+  from { text-shadow: 0 0 6px rgba(255,23,68,0.4); }
+  to   { text-shadow: 0 0 18px rgba(255,23,68,0.9); }
+}
+
+.risk-stats { border-top: 1px solid var(--border); padding-top: 8px; }
+.risk-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  border-bottom: 1px solid #141414;
+}
+.risk-row:last-child { border-bottom: none; }
+.risk-lbl { font-size: 10px; color: var(--text-dim); letter-spacing: 0.5px; }
+.risk-val { font-size: 11px; font-weight: 600; color: var(--text-hi); }
+
+/* ═══════════════════ ROW 2: SIGNALS | POSITIONS ═══════════════════ */
+.row-sig-pos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap);
+}
+
+/* ═══════════════════ TABLES ═══════════════════ */
+.t {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font);
+  font-size: 11px;
+}
+.t thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 5px 8px;
+  text-align: left;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  background: #0e0e0e;
+  border-bottom: 1px solid var(--border-mid);
+  white-space: nowrap;
+}
+.t tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.2s;
+}
+.t tbody tr:hover { background: var(--bg-hover); }
+.t tbody tr.flash-g { animation: rowFlashG 0.7s ease-out; }
+.t tbody tr.flash-r { animation: rowFlashR 0.7s ease-out; }
+.t td {
+  padding: 5px 8px;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.t .empty {
+  text-align: center;
+  color: var(--text-dim);
+  padding: 24px;
+  font-size: 11px;
+  font-style: italic;
+  letter-spacing: 0.5px;
+}
+
+@keyframes rowFlashG {
+  0%   { background: rgba(0,230,118,0.2); }
+  100% { background: transparent; }
+}
+@keyframes rowFlashR {
+  0%   { background: rgba(255,23,68,0.2); }
+  100% { background: transparent; }
+}
+
+/* ═══════════════════ ROW 3: ASTRO | OI | SECTOR ═══════════════════ */
+.row-data {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr;
+  gap: var(--gap);
+}
+
+/* Astro Grid */
+.astro-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+.astro-item {
+  background: #0e0e0e;
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--cyan-dim);
+  border-radius: var(--radius);
+  padding: 6px 8px;
+  transition: border-left-color 0.3s;
+}
+.astro-item:hover { border-left-color: var(--cyan); }
+.astro-lbl {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+.astro-val {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--cyan);
+  line-height: 1.2;
+}
+.astro-val.bull { color: var(--green); }
+.astro-val.bear { color: var(--red); }
+.astro-val.neutral { color: var(--yellow); }
+
+/* OI rows */
+.oi-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.2s;
+}
+.oi-row:last-child { border-bottom: none; }
+.oi-row:hover { background: var(--bg-hover); padding-left: 4px; }
+.oi-lbl { font-size: 10px; color: var(--text-dim); letter-spacing: 0.5px; }
+.oi-val { font-size: 12px; font-weight: 700; color: var(--text-hi); transition: color 0.15s; }
+.oi-val.bull { color: var(--green); }
+.oi-val.bear { color: var(--red); }
+.oi-val.neutral { color: var(--yellow); }
+
+/* Sector grid */
+.sector-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+}
+.sector-cell {
+  padding: 8px 6px 6px;
+  text-align: center;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  cursor: default;
+  transition: transform 0.15s, filter 0.15s;
+}
+.sector-cell:hover { transform: scale(1.04); filter: brightness(1.15); }
+.sector-name {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.55);
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+.sector-val {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* ═══════════════════ ROW 4: WEEKLY | TRADE LOG ═══════════════════ */
+.row-forecast {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap);
+}
+
+/* ═══════════════════ UTILITY CLASSES ═══════════════════ */
+.bull    { color: var(--green) !important; }
+.bear    { color: var(--red)   !important; }
+.neutral { color: var(--yellow)!important; }
+.cyan    { color: var(--cyan)  !important; }
+
+.tag {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: var(--radius);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  border: 1px solid;
+}
+.tag-buy  { background: rgba(0,230,118,0.12); color: var(--green); border-color: var(--green-dim); }
+.tag-sell { background: rgba(255,23,68,0.12);  color: var(--red);   border-color: var(--red-dim);  }
+.tag-hold { background: rgba(255,214,0,0.12);  color: var(--yellow);border-color: var(--yellow-dim);}
+.tag-sbull { background: rgba(0,230,118,0.18); color: #4cff80; border-color: var(--green-mid); }
+.tag-sbear { background: rgba(255,23,68,0.18);  color: #ff6b8a; border-color: var(--red-mid); }
+.tag-bull  { background: rgba(0,230,118,0.09); color: var(--green); border-color: var(--green-dim); }
+.tag-bear  { background: rgba(255,23,68,0.09);  color: var(--red);  border-color: var(--red-dim); }
+.tag-neut  { background: rgba(255,214,0,0.09);  color: var(--yellow);border-color: var(--yellow-dim);}
+
+.flash-green { animation: flashG 0.65s ease-out; }
+.flash-red   { animation: flashR 0.65s ease-out; }
+@keyframes flashG {
+  0%   { background: rgba(0,230,118,0.28); }
+  100% { background: transparent; }
+}
+@keyframes flashR {
+  0%   { background: rgba(255,23,68,0.28); }
+  100% { background: transparent; }
+}
+.num-up   { color: var(--green) !important; }
+.num-down { color: var(--red)   !important; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); background: rgba(0,229,255,0.08); }
+  to   { opacity: 1; transform: translateY(0);    background: transparent; }
+}
+
+/* ═══════════════════ BOTTOM HEALTH BAR ═══════════════════ */
+#healthBar {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 0 16px;
+  height: 30px;
+  background: #0d0d0d;
+  border-top: 1px solid var(--border-mid);
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  position: sticky;
+  bottom: 0;
+  z-index: 100;
+  overflow-x: auto;
+}
+#healthBar::before {
+  content: 'MODULES';
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--border-hi);
+  margin-right: 4px;
+  flex-shrink: 0;
+}
+.h-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.h-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: background 0.4s, box-shadow 0.4s;
+}
+.h-dot.green  { background: var(--green); box-shadow: 0 0 4px rgba(0,230,118,0.6); }
+.h-dot.yellow { background: var(--yellow); box-shadow: 0 0 4px rgba(255,214,0,0.5); }
+.h-dot.red    { background: var(--red); box-shadow: 0 0 4px rgba(255,23,68,0.5); }
+
+/* ═══════════════════ RESPONSIVE ═══════════════════ */
+@media (max-width: 1400px) {
+  .sector-grid { grid-template-columns: repeat(4, 1fr); }
+}
+@media (max-width: 1100px) {
+  .row-indices { grid-template-columns: repeat(2, 1fr); }
+  .row-data    { grid-template-columns: 1fr 1fr; }
+  .row-forecast{ grid-template-columns: 1fr; }
+  .sector-grid { grid-template-columns: repeat(3, 1fr); }
+  #topBar { grid-template-columns: auto auto; }
+  #userBar { display: none; }
+}
+@media (max-width: 768px) {
+  .row-indices { grid-template-columns: 1fr 1fr; }
+  .row-sig-pos { grid-template-columns: 1fr; }
+  .row-data    { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<div class="header">
-  <div class="header-title">
-    ASTRONIFTY ENGINE <span>&mdash; AstroTrade by Kanishk Arora</span>
+<!-- ═══════════════════════════════════════════════ TOP BAR ═══════════════════════════════════════════════ -->
+<div id="topBar">
+
+  <div class="tb-brand">
+    <div class="tb-logo">ASTRONIFTY ENGINE</div>
+    <div class="tb-sub">ASTROTRADE &mdash; KANISHK ARORA</div>
   </div>
-  <div class="header-status">
-    <span class="tick-counter">TICKS: <span class="count" id="tickCount">0</span></span>
-    <span class="data-freshness" id="freshness">--</span>
-    <span class="clock" id="clock">--:--:--</span>
+
+  <div id="userBar">
+    <span>LOGGED IN AS:</span>
+    <span id="userName">--</span>
+    <span class="sep">/</span>
+    <span id="userZerodhaId">--</span>
+    <span class="sep">&bull;</span>
+    <span>CAPITAL:</span>
+    <span id="userCapital">--</span>
+  </div>
+
+  <div class="tb-right">
+    <span class="tick-badge">TICKS <span class="tv" id="tickCount">0</span></span>
+    <span class="data-badge" id="freshness">DATA: --</span>
+    <span class="tb-clock"><span id="clock">--:--:--</span><span class="tb-ist"> IST</span></span>
     <span class="live-badge disconnected" id="liveBadge">
       <span class="live-dot disconnected" id="liveDot"></span>
       <span id="liveLabel">DISCONNECTED</span>
     </span>
-  </div>
-</div>
-
-<!-- USER BAR -->
-<div class="user-bar">
-  <div class="user-info">
-    <span>Logged in as: <span class="user-name" id="userName">--</span></span>
-    <span class="user-id-label">(<span id="userZerodhaId">--</span>)</span>
-    <span>Capital: <span class="user-capital" id="userCapital">--</span></span>
-  </div>
-  <div class="user-actions">
-    <button class="mode-toggle paper" id="modeToggle" onclick="toggleMode()">
+    <button class="mode-btn paper" id="modeToggle" onclick="toggleMode()">
       <span class="mode-dot paper" id="modeDot"></span>
       <span id="modeLabel">PAPER</span>
     </button>
     <button class="btn-logout" onclick="doLogout()">LOGOUT</button>
   </div>
-</div>
-
-<!-- DASHBOARD -->
-<div class="dashboard">
-
-  <!-- Score Cards with Live Prices -->
-  <div class="score-cards" id="scoreCards">
-    <div class="score-card neutral" id="score-NIFTY">
-      <div class="score-index">NIFTY 50</div>
-      <div class="live-price" id="price-NIFTY">--</div>
-      <div class="live-price-change" id="priceChg-NIFTY">--</div>
-      <div class="score-value zero" id="scoreVal-NIFTY">--</div>
-      <div class="score-meta">
-        <span class="bias" id="bias-NIFTY">--</span>
-        <span class="confidence" id="conf-NIFTY">--</span>
-      </div>
-    </div>
-    <div class="score-card neutral" id="score-BANKNIFTY">
-      <div class="score-index">BANK NIFTY</div>
-      <div class="live-price" id="price-BANKNIFTY">--</div>
-      <div class="live-price-change" id="priceChg-BANKNIFTY">--</div>
-      <div class="score-value zero" id="scoreVal-BANKNIFTY">--</div>
-      <div class="score-meta">
-        <span class="bias" id="bias-BANKNIFTY">--</span>
-        <span class="confidence" id="conf-BANKNIFTY">--</span>
-      </div>
-    </div>
-    <div class="score-card neutral" id="score-GIFTNIFTY">
-      <div class="score-index">GIFT NIFTY</div>
-      <div class="live-price" id="price-GIFTNIFTY">--</div>
-      <div class="live-price-change" id="priceChg-GIFTNIFTY">--</div>
-      <div class="score-value zero" id="scoreVal-GIFTNIFTY">--</div>
-      <div class="score-meta">
-        <span class="bias" id="bias-GIFTNIFTY">--</span>
-        <span class="confidence" id="conf-GIFTNIFTY">--</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Risk Status -->
-  <div class="card risk-card">
-    <div class="card-header">RISK STATUS</div>
-    <div class="card-body risk-status">
-      <div class="risk-level neutral" id="riskLevel">NORMAL</div>
-      <div class="risk-details" id="riskDetails">
-        <div>Max Loss: <span id="riskMaxLoss">--</span></div>
-        <div>Open Positions: <span id="riskOpenPos">0</span></div>
-        <div>Day P&amp;L: <span id="riskDayPnl">--</span></div>
-        <div>Drawdown: <span id="riskDrawdown">--</span></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Active Signals -->
-  <div class="card signals-panel">
-    <div class="card-header">ACTIVE SIGNALS <span id="signalCount">0</span></div>
-    <div class="card-body">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>TIME</th><th>INDEX</th><th>DIRECTION</th><th>SCORE</th>
-            <th>ENTRY</th><th>SL</th><th>T1</th><th>T2</th><th>STATUS</th>
-          </tr>
-        </thead>
-        <tbody id="signalsBody">
-          <tr><td colspan="9" class="empty-msg">Waiting for signals...</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- Open Positions -->
-  <div class="card positions-panel">
-    <div class="card-header">OPEN POSITIONS <span id="posCount">0</span></div>
-    <div class="card-body">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>INSTRUMENT</th><th>QTY</th><th>ENTRY</th><th>LTP</th>
-            <th>P&amp;L</th><th>SL</th><th>TARGET</th><th>STATUS</th>
-          </tr>
-        </thead>
-        <tbody id="positionsBody">
-          <tr><td colspan="8" class="empty-msg">No open positions</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- Astro Panel -->
-  <div class="card astro-panel">
-    <div class="card-header">ASTRO DATA</div>
-    <div class="card-body">
-      <div class="astro-grid" id="astroGrid">
-        <div class="astro-item"><div class="astro-label">Nakshatra</div><div class="astro-value" id="astroNakshatra">--</div></div>
-        <div class="astro-item"><div class="astro-label">Tithi</div><div class="astro-value" id="astroTithi">--</div></div>
-        <div class="astro-item"><div class="astro-label">Hora</div><div class="astro-value" id="astroHora">--</div></div>
-        <div class="astro-item"><div class="astro-label">Yoga</div><div class="astro-value" id="astroYoga">--</div></div>
-        <div class="astro-item"><div class="astro-label">Moon Sign</div><div class="astro-value" id="astroMoonSign">--</div></div>
-        <div class="astro-item"><div class="astro-label">Karana</div><div class="astro-value" id="astroAspect">--</div></div>
-        <div class="astro-item"><div class="astro-label">Score</div><div class="astro-value" id="astroScore">--</div></div>
-        <div class="astro-item"><div class="astro-label">Bias</div><div class="astro-value" id="astroBias">--</div></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- OI Summary -->
-  <div class="card oi-panel">
-    <div class="card-header">OI SUMMARY <span style="font-size:9px;color:var(--text-muted)" id="oiIndex">NIFTY</span></div>
-    <div class="card-body" id="oiBody">
-      <div class="oi-stat"><span class="oi-label">Max Pain</span><span class="oi-val" id="oiMaxPain">--</span></div>
-      <div class="oi-stat"><span class="oi-label">PCR</span><span class="oi-val" id="oiPCR">--</span></div>
-      <div class="oi-stat"><span class="oi-label">CE Wall</span><span class="oi-val" id="oiCEWall">--</span></div>
-      <div class="oi-stat"><span class="oi-label">PE Wall</span><span class="oi-val" id="oiPEWall">--</span></div>
-      <div class="oi-stat"><span class="oi-label">OI Bias</span><span class="oi-val" id="oiBias">--</span></div>
-      <div class="oi-stat"><span class="oi-label">CE Chg</span><span class="oi-val" id="oiCEChg">--</span></div>
-      <div class="oi-stat"><span class="oi-label">PE Chg</span><span class="oi-val" id="oiPEChg">--</span></div>
-      <div class="oi-stat"><span class="oi-label">Spot</span><span class="oi-val" id="oiSpot">--</span></div>
-    </div>
-  </div>
-
-  <!-- Sector Heatmap -->
-  <div class="card sector-panel">
-    <div class="card-header">SECTOR IMPACT HEATMAP</div>
-    <div class="card-body">
-      <div class="sector-grid" id="sectorGrid">
-        <div class="empty-msg" style="grid-column:1/-1;">Loading sectors...</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Weekly Probability -->
-  <div class="card weekly-panel">
-    <div class="card-header">WEEKLY PROBABILITY FORECAST</div>
-    <div class="card-body">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>DAY</th><th>RANGE</th><th>BULL%</th><th>BEAR%</th>
-            <th>KEY LEVELS</th><th>ASTRO NOTE</th>
-          </tr>
-        </thead>
-        <tbody id="weeklyBody">
-          <tr><td colspan="6" class="empty-msg">Forecast not generated yet</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- Trade Log -->
-  <div class="card trade-log-panel">
-    <div class="card-header">TODAY'S TRADE LOG <span id="tradeCount">0</span></div>
-    <div class="card-body">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>TIME</th><th>INDEX</th><th>DIR</th><th>ENTRY</th>
-            <th>EXIT</th><th>P&amp;L</th><th>REASON</th>
-          </tr>
-        </thead>
-        <tbody id="tradeLogBody">
-          <tr><td colspan="7" class="empty-msg">No trades today</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
 
 </div>
 
-<!-- HEALTH BAR -->
-<div class="health-bar" id="healthBar">
-  <div class="health-item"><span class="health-dot red" id="h-astro"></span>ASTRO</div>
-  <div class="health-item"><span class="health-dot red" id="h-oi"></span>OI</div>
-  <div class="health-item"><span class="health-dot red" id="h-sector"></span>SECTOR</div>
-  <div class="health-item"><span class="health-dot red" id="h-scorer"></span>SCORER</div>
-  <div class="health-item"><span class="health-dot red" id="h-risk"></span>RISK</div>
-  <div class="health-item"><span class="health-dot red" id="h-executor"></span>EXEC</div>
-  <div class="health-item"><span class="health-dot red" id="h-database"></span>DB</div>
-  <div class="health-item"><span class="health-dot red" id="h-telegram"></span>TG</div>
-  <div class="health-item"><span class="health-dot red" id="h-ticker"></span>TICKER</div>
+<!-- ═══════════════════════════════════════════════ TERMINAL ═══════════════════════════════════════════════ -->
+<div class="terminal">
+
+  <!-- ROW 1: INDEX CARDS + RISK -->
+  <div class="row-indices">
+
+    <!-- NIFTY 50 -->
+    <div class="idx-card neutral" id="score-NIFTY">
+      <div class="idx-name">NIFTY 50</div>
+      <div class="idx-ltp" id="price-NIFTY">--</div>
+      <div class="idx-chg" id="priceChg-NIFTY">--</div>
+      <div class="idx-ohlc">
+        <div class="idx-ohlc-item"><div class="idx-ohlc-label">OPEN</div><div class="idx-ohlc-val" id="open-NIFTY">--</div></div>
+        <div class="idx-ohlc-item"><div class="idx-ohlc-label">HIGH</div><div class="idx-ohlc-val bull" id="high-NIFTY">--</div></div>
+        <div class="idx-ohlc-item"><div class="idx-ohlc-label">LOW</div><div class="idx-ohlc-val bear" id="low-NIFTY">--</div></div>
+        <div class="idx-ohlc-item"><div class="idx-ohlc-label">PREV</div><div class="idx-ohlc-val" id="close-NIFTY">--</div></div>
+      </div>
+      <div class="score-overlay" id="scoreOverlay-NIFTY">SCORE: --</div>
+    </div>
+
+    <!-- BANK NIFTY -->
+    <div class="idx-card neutral" id="score-BANKNIFTY">
+      <div class="idx-name">BANK NIFTY</div>
+      <div class="idx-ltp" id="price-BANKNIFTY">--</div>
+      <div class="idx-chg" id="priceChg-BANKNIFTY">--</div>
+      <div class="idx-ohlc">
+        <div class="idx-ohlc-item"><div class="idx-ohlc-label">OPEN</div><div class="idx-ohlc-val" id="open-BANKNIFTY">--</div></div>
+        <div class="idx-ohlc-item"><div class="idx-ohlc-label">HIGH</div><div class="idx-ohlc-val bull" id="high-BANKNIFTY">--</div></div>
+        <div class="idx-ohlc-item"><div class="idx-ohlc-label">LOW</div><div class="idx-ohlc-val bear" id="low-BANKNIFTY">--</div></div>
+        <div class="idx-ohlc-item"><div class="idx-ohlc-label">PREV</div><div class="idx-ohlc-val" id="close-BANKNIFTY">--</div></div>
+      </div>
+      <div class="score-overlay" id="scoreOverlay-BANKNIFTY">SCORE: --</div>
+    </div>
+
+    <!-- GIFT NIFTY -->
+    <div class="idx-card neutral" id="score-GIFTNIFTY">
+      <div class="idx-name">GIFT NIFTY</div>
+      <div class="idx-ltp" id="price-GIFTNIFTY">--</div>
+      <div class="idx-chg" id="priceChg-GIFTNIFTY">--</div>
+      <div class="idx-ohlc">
+        <div class="idx-ohlc-item"><div class="idx-ohlc-label">OPEN</div><div class="idx-ohlc-val" id="open-GIFTNIFTY">--</div></div>
+        <div class="idx-ohlc-item"><div class="idx-ohlc-label">HIGH</div><div class="idx-ohlc-val bull" id="high-GIFTNIFTY">--</div></div>
+        <div class="idx-ohlc-item"><div class="idx-ohlc-label">LOW</div><div class="idx-ohlc-val bear" id="low-GIFTNIFTY">--</div></div>
+        <div class="idx-ohlc-item"><div class="idx-ohlc-label">PREV</div><div class="idx-ohlc-val" id="close-GIFTNIFTY">--</div></div>
+      </div>
+      <div class="score-overlay" id="scoreOverlay-GIFTNIFTY">SCORE: --</div>
+    </div>
+
+    <!-- RISK STATUS -->
+    <div class="risk-card">
+      <div class="risk-hd">
+        <span class="risk-hd-title">RISK STATUS</span>
+      </div>
+      <div class="risk-body">
+        <div class="risk-level-val normal" id="riskLevel">NORMAL</div>
+        <div class="risk-stats" id="riskDetails">
+          <div class="risk-row"><span class="risk-lbl">MAX LOSS</span><span class="risk-val" id="riskMaxLoss">--</span></div>
+          <div class="risk-row"><span class="risk-lbl">OPEN POS</span><span class="risk-val" id="riskOpenPos">0</span></div>
+          <div class="risk-row"><span class="risk-lbl">DAY P&amp;L</span><span class="risk-val" id="riskDayPnl">--</span></div>
+          <div class="risk-row"><span class="risk-lbl">DRAWDOWN</span><span class="risk-val" id="riskDrawdown">--</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /row-indices -->
+
+  <!-- ROW 2: ACTIVE SIGNALS | OPEN POSITIONS -->
+  <div class="row-sig-pos">
+
+    <!-- ACTIVE SIGNALS -->
+    <div class="card">
+      <div class="card-hd">
+        <span class="card-hd-title">ACTIVE SIGNALS</span>
+        <span class="card-hd-badge cnt" id="signalCount">0</span>
+      </div>
+      <div class="card-body-tight">
+        <table class="t">
+          <thead>
+            <tr>
+              <th>TIME</th><th>INDEX</th><th>DIR</th><th>SCORE</th>
+              <th>ENTRY</th><th>SL</th><th>T1</th><th>T2</th><th>STATUS</th>
+            </tr>
+          </thead>
+          <tbody id="signalsBody">
+            <tr><td colspan="9" class="empty">Waiting for signals...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- OPEN POSITIONS -->
+    <div class="card">
+      <div class="card-hd">
+        <span class="card-hd-title">OPEN POSITIONS</span>
+        <span class="card-hd-badge cnt" id="posCount">0</span>
+      </div>
+      <div class="card-body-tight">
+        <table class="t">
+          <thead>
+            <tr>
+              <th>INSTRUMENT</th><th>QTY</th><th>ENTRY</th><th>LTP</th>
+              <th>P&amp;L</th><th>SL</th><th>TARGET</th><th>STATUS</th>
+            </tr>
+          </thead>
+          <tbody id="positionsBody">
+            <tr><td colspan="8" class="empty">No open positions</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /row-sig-pos -->
+
+  <!-- ROW 3: ASTRO DATA | OI SUMMARY | SECTOR HEATMAP -->
+  <div class="row-data">
+
+    <!-- ASTRO DATA -->
+    <div class="card">
+      <div class="card-hd">
+        <span class="card-hd-title accent">ASTRO DATA</span>
+        <span style="font-size:9px;color:var(--text-dim);letter-spacing:1px">VEDIC</span>
+      </div>
+      <div class="card-body">
+        <div class="astro-grid" id="astroGrid">
+          <div class="astro-item">
+            <div class="astro-lbl">NAKSHATRA</div>
+            <div class="astro-val" id="astroNakshatra">--</div>
+          </div>
+          <div class="astro-item">
+            <div class="astro-lbl">TITHI</div>
+            <div class="astro-val" id="astroTithi">--</div>
+          </div>
+          <div class="astro-item">
+            <div class="astro-lbl">HORA</div>
+            <div class="astro-val" id="astroHora">--</div>
+          </div>
+          <div class="astro-item">
+            <div class="astro-lbl">YOGA</div>
+            <div class="astro-val" id="astroYoga">--</div>
+          </div>
+          <div class="astro-item">
+            <div class="astro-lbl">MOON SIGN</div>
+            <div class="astro-val" id="astroMoonSign">--</div>
+          </div>
+          <div class="astro-item">
+            <div class="astro-lbl">KARANA</div>
+            <div class="astro-val" id="astroAspect">--</div>
+          </div>
+          <div class="astro-item">
+            <div class="astro-lbl">SCORE</div>
+            <div class="astro-val" id="astroScore">--</div>
+          </div>
+          <div class="astro-item">
+            <div class="astro-lbl">BIAS</div>
+            <div class="astro-val" id="astroBias">--</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OI SUMMARY -->
+    <div class="card">
+      <div class="card-hd">
+        <span class="card-hd-title accent">OI SUMMARY</span>
+        <span class="card-hd-badge" id="oiIndex">NIFTY</span>
+      </div>
+      <div class="card-body" id="oiBody">
+        <div class="oi-row"><span class="oi-lbl">MAX PAIN</span><span class="oi-val" id="oiMaxPain">--</span></div>
+        <div class="oi-row"><span class="oi-lbl">PCR</span><span class="oi-val" id="oiPCR">--</span></div>
+        <div class="oi-row"><span class="oi-lbl">CE WALL</span><span class="oi-val" id="oiCEWall">--</span></div>
+        <div class="oi-row"><span class="oi-lbl">PE WALL</span><span class="oi-val" id="oiPEWall">--</span></div>
+        <div class="oi-row"><span class="oi-lbl">OI BIAS</span><span class="oi-val" id="oiBias">--</span></div>
+        <div class="oi-row"><span class="oi-lbl">CE CHG</span><span class="oi-val" id="oiCEChg">--</span></div>
+        <div class="oi-row"><span class="oi-lbl">PE CHG</span><span class="oi-val" id="oiPEChg">--</span></div>
+        <div class="oi-row"><span class="oi-lbl">SPOT</span><span class="oi-val" id="oiSpot">--</span></div>
+      </div>
+    </div>
+
+    <!-- SECTOR IMPACT HEATMAP -->
+    <div class="card">
+      <div class="card-hd">
+        <span class="card-hd-title">SECTOR IMPACT HEATMAP</span>
+        <span style="font-size:9px;color:var(--text-dim);letter-spacing:1px">LIVE</span>
+      </div>
+      <div class="card-body">
+        <div class="sector-grid" id="sectorGrid">
+          <div style="grid-column:1/-1;text-align:center;color:var(--text-dim);padding:20px;font-size:11px;font-style:italic">Loading sectors...</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /row-data -->
+
+  <!-- ROW 4: WEEKLY FORECAST | TRADE LOG -->
+  <div class="row-forecast">
+
+    <!-- WEEKLY PROBABILITY FORECAST -->
+    <div class="card">
+      <div class="card-hd">
+        <span class="card-hd-title">WEEKLY PROBABILITY FORECAST</span>
+        <span style="font-size:9px;color:var(--text-dim);letter-spacing:1px">ASTRO-WEIGHTED</span>
+      </div>
+      <div class="card-body-tight">
+        <table class="t">
+          <thead>
+            <tr>
+              <th>DAY</th><th>BIAS</th><th>BULLS%</th><th>BEARS%</th>
+              <th>KEY LEVELS</th><th>ASTRO NOTE</th>
+            </tr>
+          </thead>
+          <tbody id="weeklyBody">
+            <tr><td colspan="6" class="empty">Forecast not generated yet</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TODAY'S TRADE LOG -->
+    <div class="card">
+      <div class="card-hd">
+        <span class="card-hd-title">TODAY'S TRADE LOG</span>
+        <span class="card-hd-badge cnt" id="tradeCount">0</span>
+      </div>
+      <div class="card-body-tight">
+        <table class="t">
+          <thead>
+            <tr>
+              <th>TIME</th><th>INDEX</th><th>DIR</th><th>ENTRY</th>
+              <th>EXIT</th><th>P&amp;L</th><th>REASON</th>
+            </tr>
+          </thead>
+          <tbody id="tradeLogBody">
+            <tr><td colspan="7" class="empty">No trades today</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /row-forecast -->
+
+</div><!-- /terminal -->
+
+<!-- ═══════════════════════════════════════════════ HEALTH BAR ═══════════════════════════════════════════════ -->
+<div id="healthBar">
+  <div class="h-item"><span class="h-dot red" id="h-astro"></span>ASTRO</div>
+  <div class="h-item"><span class="h-dot red" id="h-oi"></span>OI</div>
+  <div class="h-item"><span class="h-dot red" id="h-sector"></span>SECTOR</div>
+  <div class="h-item"><span class="h-dot red" id="h-scorer"></span>SCORER</div>
+  <div class="h-item"><span class="h-dot red" id="h-risk"></span>RISK</div>
+  <div class="h-item"><span class="h-dot red" id="h-executor"></span>EXEC</div>
+  <div class="h-item"><span class="h-dot red" id="h-database"></span>DB</div>
+  <div class="h-item"><span class="h-dot red" id="h-telegram"></span>TG</div>
+  <div class="h-item"><span class="h-dot red" id="h-ticker"></span>TICKER</div>
 </div>
 
-<!-- JAVASCRIPT -->
+<!-- ═══════════════════════════════════════════════ JAVASCRIPT ═══════════════════════════════════════════════ -->
 <script>
 (function() {
   'use strict';
@@ -728,13 +995,13 @@
       var el = document.getElementById('freshness');
       if (age <= 2) {
         el.textContent = 'DATA: LIVE';
-        el.className = 'data-freshness fresh';
+        el.className = 'data-badge fresh';
       } else if (age <= 10) {
         el.textContent = 'DATA: ' + age + 's ago';
-        el.className = 'data-freshness stale';
+        el.className = 'data-badge stale';
       } else {
         el.textContent = 'DATA: ' + age + 's ago';
-        el.className = 'data-freshness dead';
+        el.className = 'data-badge dead';
       }
     }
   }
@@ -910,11 +1177,11 @@
     var label = document.getElementById('modeLabel');
 
     if (currentMode === 'live') {
-      toggle.className = 'mode-toggle live';
+      toggle.className = 'mode-btn live';
       dot.className = 'mode-dot live';
       label.textContent = 'LIVE';
     } else {
-      toggle.className = 'mode-toggle paper';
+      toggle.className = 'mode-btn paper';
       dot.className = 'mode-dot paper';
       label.textContent = 'PAPER';
     }
@@ -1010,8 +1277,14 @@
         var close = p.close || (ltp - change);
         var changePct = close ? ((change / close) * 100).toFixed(2) : '0.00';
         chgEl.textContent = sign + change.toFixed(2) + ' (' + sign + changePct + '%)';
-        chgEl.className = 'live-price-change ' + (change >= 0 ? 'bull' : 'bear');
+        chgEl.className = 'idx-chg ' + (change >= 0 ? 'bull' : 'bear');
       }
+
+      // OHLC
+      if (p.open)  { var oe = document.getElementById('open-'  + idx); if (oe) oe.textContent = p.open.toFixed(2); }
+      if (p.high)  { var he = document.getElementById('high-'  + idx); if (he) he.textContent = p.high.toFixed(2); }
+      if (p.low)   { var le = document.getElementById('low-'   + idx); if (le) le.textContent = p.low.toFixed(2); }
+      if (p.close) { var ce = document.getElementById('close-' + idx); if (ce) ce.textContent = p.close.toFixed(2); }
 
       prevPrices[idx] = ltp;
     });
@@ -1066,18 +1339,20 @@
   function renderScores(scores) {
     ['NIFTY', 'BANKNIFTY', 'GIFTNIFTY'].forEach(function(idx) {
       var s = scores[idx] || {};
-      var val = s.total_score != null ? s.total_score : '--';
-      var numVal = parseFloat(val);
-      var el = document.getElementById('scoreVal-' + idx);
-      el.textContent = val;
-      el.className = 'score-value ' + (numVal > 0 ? 'positive' : (numVal < 0 ? 'negative' : 'zero'));
+      var val = s.total_score != null ? s.total_score : null;
+      var numVal = val != null ? parseFloat(val) : NaN;
 
       var card = document.getElementById('score-' + idx);
-      card.className = 'score-card ' + (numVal > 0 ? 'bull' : (numVal < 0 ? 'bear' : 'neutral'));
+      var direction = !isNaN(numVal) ? (numVal > 0 ? 'bull' : (numVal < 0 ? 'bear' : 'neutral')) : 'neutral';
+      card.className = 'idx-card ' + direction;
 
-      document.getElementById('bias-' + idx).textContent = s.bias || '--';
-      document.getElementById('bias-' + idx).className = 'bias ' + biasClass(s.bias);
-      document.getElementById('conf-' + idx).textContent = s.confidence ? s.confidence + '%' : '--';
+      // Score overlay badge
+      var overlay = document.getElementById('scoreOverlay-' + idx);
+      if (overlay && val != null) {
+        var bias = s.bias || (numVal > 0 ? 'BULL' : (numVal < 0 ? 'BEAR' : 'NEUTRAL'));
+        overlay.textContent = 'SCORE: ' + val + ' ' + bias.toUpperCase();
+        overlay.className = 'score-overlay visible ' + (numVal > 0 ? 'bull-score' : (numVal < 0 ? 'bear-score' : ''));
+      }
     });
   }
 
@@ -1086,7 +1361,7 @@
     document.getElementById('signalCount').textContent = signals.length;
     var body = document.getElementById('signalsBody');
     if (!signals.length) {
-      body.innerHTML = '<tr><td colspan="9" class="empty-msg">Waiting for signals...</td></tr>';
+      body.innerHTML = '<tr><td colspan="9" class="empty">Waiting for signals...</td></tr>';
       return;
     }
     body.innerHTML = signals.map(function(s) {
@@ -1107,7 +1382,7 @@
 
   function appendSignal(s) {
     var body = document.getElementById('signalsBody');
-    if (body.querySelector('.empty-msg')) body.innerHTML = '';
+    if (body.querySelector('.empty')) body.innerHTML = '';
     var dirClass = (s.direction || '').toLowerCase() === 'buy' ? 'tag-buy' : 'tag-sell';
     var row = '<tr style="animation:fadeIn 0.5s">' +
       '<td>' + (s.time || '--') + '</td>' +
@@ -1131,14 +1406,14 @@
     document.getElementById('riskOpenPos').textContent = positions.length;
     var body = document.getElementById('positionsBody');
     if (!positions.length) {
-      body.innerHTML = '<tr><td colspan="8" class="empty-msg">No open positions</td></tr>';
+      body.innerHTML = '<tr><td colspan="8" class="empty">No open positions</td></tr>';
       return;
     }
     body.innerHTML = positions.map(function(p) {
       var pnl = p.pnl || 0;
       var instrument = p.instrument || '--';
       var prevPnl = prevPnls[instrument] || 0;
-      var pnlDir = pnl > prevPnl ? 'flash-green' : (pnl < prevPnl ? 'flash-red' : '');
+      var pnlDir = pnl > prevPnl ? 'flash-g' : (pnl < prevPnl ? 'flash-r' : '');
       prevPnls[instrument] = pnl;
 
       return '<tr class="' + pnlDir + '">' +
@@ -1154,8 +1429,8 @@
     }).join('');
 
     setTimeout(function() {
-      var rows = body.querySelectorAll('.flash-green, .flash-red');
-      rows.forEach(function(r) { r.classList.remove('flash-green', 'flash-red'); });
+      var rows = body.querySelectorAll('.flash-g, .flash-r');
+      rows.forEach(function(r) { r.classList.remove('flash-g', 'flash-r'); });
     }, 600);
   }
 
@@ -1203,7 +1478,7 @@
     document.getElementById('astroScore').textContent = a.score != null ? a.score + '/20' : '--';
     var biasEl = document.getElementById('astroBias');
     biasEl.textContent = a.bias ? a.bias.toUpperCase() : '--';
-    biasEl.className = 'astro-value ' + biasClass(a.bias);
+    biasEl.className = 'astro-val ' + biasClass(a.bias);
   }
 
   // ── OI renderer ──
@@ -1224,6 +1499,16 @@
     var biasEl = document.getElementById('oiBias');
     biasEl.textContent = o.bias || '--';
     biasEl.className = 'oi-val ' + biasClass(o.bias);
+
+    // PCR coloring
+    var pcrEl = document.getElementById('oiPCR');
+    if (pcrEl && o.pcr != null) {
+      var pcr = parseFloat(o.pcr);
+      if (pcr > 1.0)      pcrEl.className = 'oi-val bull';
+      else if (pcr < 0.7) pcrEl.className = 'oi-val bear';
+      else                pcrEl.className = 'oi-val neutral';
+    }
+
     document.getElementById('oiCEChg').textContent = o.ce_oi_change || '--';
     document.getElementById('oiPEChg').textContent = o.pe_oi_change || '--';
     document.getElementById('oiSpot').textContent = o.spot || '--';
@@ -1234,21 +1519,33 @@
     var grid = document.getElementById('sectorGrid');
     var keys = Object.keys(sectors);
     if (!keys.length) {
-      grid.innerHTML = '<div class="empty-msg" style="grid-column:1/-1">Loading sectors...</div>';
+      grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text-dim);padding:20px;font-size:11px;font-style:italic">Loading sectors...</div>';
       return;
     }
     grid.innerHTML = keys.map(function(name) {
       var s = sectors[name];
       var impact = s.impact || s.change || s.change_pct || 0;
-      var bg, fg;
-      if (impact > 1) { bg = 'rgba(0,200,83,0.3)'; fg = 'var(--green)'; }
-      else if (impact > 0) { bg = 'rgba(0,200,83,0.15)'; fg = 'var(--green)'; }
-      else if (impact < -1) { bg = 'rgba(255,23,68,0.3)'; fg = 'var(--red)'; }
-      else if (impact < 0) { bg = 'rgba(255,23,68,0.15)'; fg = 'var(--red)'; }
-      else { bg = 'rgba(255,214,0,0.1)'; fg = 'var(--yellow)'; }
-      return '<div class="sector-cell" style="background:' + bg + ';animation:fadeIn 0.5s">' +
-        '<div class="name">' + name + '</div>' +
-        '<div class="val" style="color:' + fg + '">' + (impact >= 0 ? '+' : '') + impact.toFixed(1) + '%</div>' +
+      var absImp = Math.abs(impact);
+      var intensity = Math.min(absImp / 3, 1);
+      var bg, fg, border;
+      if (impact > 0) {
+        var a = (0.1 + intensity * 0.35).toFixed(2);
+        bg = 'rgba(0,230,118,' + a + ')';
+        fg = impact > 1 ? '#4cff80' : 'var(--green)';
+        border = 'rgba(0,230,118,' + (intensity * 0.4).toFixed(2) + ')';
+      } else if (impact < 0) {
+        var a2 = (0.1 + intensity * 0.35).toFixed(2);
+        bg = 'rgba(255,23,68,' + a2 + ')';
+        fg = impact < -1 ? '#ff8fa0' : 'var(--red)';
+        border = 'rgba(255,23,68,' + (intensity * 0.4).toFixed(2) + ')';
+      } else {
+        bg = 'rgba(255,214,0,0.08)';
+        fg = 'var(--yellow)';
+        border = 'rgba(255,214,0,0.15)';
+      }
+      return '<div class="sector-cell" style="background:' + bg + ';border-color:' + border + ';animation:fadeIn 0.5s">' +
+        '<div class="sector-name">' + name + '</div>' +
+        '<div class="sector-val" style="color:' + fg + '">' + (impact >= 0 ? '+' : '') + impact.toFixed(1) + '%</div>' +
         '</div>';
     }).join('');
   }
@@ -1258,25 +1555,35 @@
     var body = document.getElementById('weeklyBody');
     var days = forecast.days || forecast.daily_forecast || [];
     if (!days.length) {
-      body.innerHTML = '<tr><td colspan="6" class="empty-msg">Forecast not generated yet</td></tr>';
+      body.innerHTML = '<tr><td colspan="6" class="empty">Forecast not generated yet</td></tr>';
       return;
     }
     body.innerHTML = days.map(function(d) {
       var callP = d.call_probability != null ? (d.call_probability * 100).toFixed(0) + '%' : (d.bull_pct || '--');
-      var putP = d.put_probability != null ? (d.put_probability * 100).toFixed(0) + '%' : (d.bear_pct || '--');
+      var putP  = d.put_probability  != null ? (d.put_probability  * 100).toFixed(0) + '%' : (d.bear_pct || '--');
       var nak = d.nakshatra || '';
       if (typeof nak === 'object') nak = nak.name || '';
       var tit = d.tithi || '';
       if (typeof tit === 'object') tit = tit.name || '';
       var astroNote = d.astro_note || (nak + (tit ? ' / ' + tit : ''));
-      var biasTag = d.bias ? '<span class="tag ' + biasClass(d.bias) + '">' + d.bias.toUpperCase() + '</span>' : '--';
+
+      // Bias tag
+      var biasStr = d.bias ? d.bias.toUpperCase() : '--';
+      var biasTagClass = 'tag-neut';
+      if (biasStr === 'STRONG BULL') biasTagClass = 'tag-sbull';
+      else if (biasStr === 'BULL')   biasTagClass = 'tag-bull';
+      else if (biasStr === 'BEAR')   biasTagClass = 'tag-bear';
+      else if (biasStr === 'STRONG BEAR') biasTagClass = 'tag-sbear';
+      else if (biasClass(biasStr) === 'bull') biasTagClass = 'tag-bull';
+      else if (biasClass(biasStr) === 'bear') biasTagClass = 'tag-bear';
+
       return '<tr>' +
-        '<td>' + (d.day || '--') + '</td>' +
-        '<td>' + biasTag + '</td>' +
+        '<td style="font-weight:600;color:var(--text-hi)">' + (d.day || '--') + '</td>' +
+        '<td><span class="tag ' + biasTagClass + '">' + biasStr + '</span></td>' +
         '<td class="bull">' + callP + '</td>' +
         '<td class="bear">' + putP + '</td>' +
-        '<td>' + (d.best_trade || d.key_levels || '--') + '</td>' +
-        '<td>' + astroNote + '</td>' +
+        '<td style="color:var(--text-mid)">' + (d.best_trade || d.key_levels || '--') + '</td>' +
+        '<td style="color:var(--text-dim)">' + astroNote + '</td>' +
         '</tr>';
     }).join('');
   }
@@ -1286,7 +1593,7 @@
     document.getElementById('tradeCount').textContent = trades.length;
     var body = document.getElementById('tradeLogBody');
     if (!trades.length) {
-      body.innerHTML = '<tr><td colspan="7" class="empty-msg">No trades today</td></tr>';
+      body.innerHTML = '<tr><td colspan="7" class="empty">No trades today</td></tr>';
       return;
     }
     body.innerHTML = trades.map(function(t) {
@@ -1298,14 +1605,14 @@
         '<td>' + (t.entry || '--') + '</td>' +
         '<td>' + (t.exit || '--') + '</td>' +
         '<td class="' + pnlClass(pnl) + '">' + (pnl >= 0 ? '+' : '') + pnl.toFixed(2) + '</td>' +
-        '<td>' + (t.reason || '--') + '</td>' +
+        '<td style="color:var(--text-dim)">' + (t.reason || '--') + '</td>' +
         '</tr>';
     }).join('');
   }
 
   function appendTrade(t) {
     var body = document.getElementById('tradeLogBody');
-    if (body.querySelector('.empty-msg')) body.innerHTML = '';
+    if (body.querySelector('.empty')) body.innerHTML = '';
     var pnl = t.pnl || 0;
     var row = '<tr style="animation:fadeIn 0.5s">' +
       '<td>' + (t.time || '--') + '</td>' +
@@ -1314,7 +1621,7 @@
       '<td>' + (t.entry || '--') + '</td>' +
       '<td>' + (t.exit || '--') + '</td>' +
       '<td class="' + pnlClass(pnl) + '">' + (pnl >= 0 ? '+' : '') + pnl.toFixed(2) + '</td>' +
-      '<td>' + (t.reason || '--') + '</td>' +
+      '<td style="color:var(--text-dim)">' + (t.reason || '--') + '</td>' +
       '</tr>';
     body.insertAdjacentHTML('afterbegin', row);
     var cnt = parseInt(document.getElementById('tradeCount').textContent || '0');
@@ -1333,7 +1640,7 @@
     } else {
       el.textContent = newText;
     }
-    el.className = pnlClass(dayPnl);
+    el.className = 'risk-val ' + pnlClass(dayPnl);
 
     document.getElementById('riskMaxLoss').textContent = pnl.max_loss || '--';
     document.getElementById('riskDrawdown').textContent = pnl.drawdown || '--';
@@ -1341,7 +1648,13 @@
     var riskEl = document.getElementById('riskLevel');
     var rl = (pnl.risk_level || 'NORMAL').toUpperCase();
     riskEl.textContent = rl;
-    riskEl.className = 'risk-level ' + (rl === 'HIGH' || rl === 'CRITICAL' ? 'bear' : (rl === 'LOW' ? 'bull' : 'neutral'));
+    if (rl === 'HIGH' || rl === 'CRITICAL' || rl === 'DANGER') {
+      riskEl.className = 'risk-level-val danger';
+    } else if (rl === 'WARNING' || rl === 'MEDIUM') {
+      riskEl.className = 'risk-level-val warning';
+    } else {
+      riskEl.className = 'risk-level-val normal';
+    }
   }
 
   // ── Health renderer ──
@@ -1349,7 +1662,7 @@
     Object.keys(health).forEach(function(mod) {
       var dot = document.getElementById('h-' + mod);
       if (dot) {
-        dot.className = 'health-dot ' + health[mod];
+        dot.className = 'h-dot ' + health[mod];
       }
     });
   }
