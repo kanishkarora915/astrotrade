@@ -26,6 +26,37 @@ ALPHA_VANTAGE_KEY = os.getenv("ALPHA_VANTAGE_KEY", "")
 PAPER_TRADE = os.getenv("PAPER_TRADE", "True").lower() == "true"
 INITIAL_CAPITAL = float(os.getenv("INITIAL_CAPITAL", "500000"))
 
+
+def get_current_expiry(index: str = "NIFTY") -> str:
+    """Get the nearest expiry date for the given index.
+    NIFTY: Thursday weekly, BANKNIFTY: Wednesday weekly.
+    Returns date string YYYY-MM-DD.
+    """
+    from datetime import datetime, timedelta
+
+    today = datetime.now().date()
+    config = INDICES.get(index, INDICES.get("NIFTY", {}))
+    expiry_day_name = config.get("expiry_day", "thursday")
+
+    day_map = {
+        "monday": 0, "tuesday": 1, "wednesday": 2,
+        "thursday": 3, "friday": 4, "saturday": 5, "sunday": 6,
+    }
+    target_weekday = day_map.get(expiry_day_name, 3)
+
+    # Find next occurrence of expiry day
+    days_ahead = target_weekday - today.weekday()
+    if days_ahead < 0:
+        days_ahead += 7
+    if days_ahead == 0:
+        # Today is expiry day — use today if before 3:30 PM, else next week
+        now = datetime.now()
+        if now.hour >= 16:
+            days_ahead = 7
+
+    expiry_date = today + timedelta(days=days_ahead)
+    return expiry_date.strftime("%Y-%m-%d")
+
 # ═══════════════════════════════════════════════════════════════
 # INDEX CONFIGURATION
 # ═══════════════════════════════════════════════════════════════

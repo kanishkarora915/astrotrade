@@ -1079,37 +1079,79 @@ async def _start_live_data(user_id: str):
         while _live_data_running:
             try:
                 # Fetch live prices for indices
-                import asyncio as _aio
                 prices = {}
+                dashboard_prices = {}
                 try:
-                    ltp_data = kite.get_ltp([
+                    symbols = [
                         "NSE:NIFTY 50", "NSE:NIFTY BANK",
                         "NSE:NIFTY FIN SERVICE", "NSE:NIFTY IT",
                         "NSE:NIFTY AUTO", "NSE:NIFTY PHARMA",
                         "NSE:NIFTY METAL", "NSE:NIFTY ENERGY",
                         "NSE:NIFTY FMCG", "NSE:NIFTY REALTY",
                         "NSE:NIFTY MEDIA",
-                    ])
-                    for sym, data in ltp_data.items():
-                        prices[sym] = data
-                    _live_prices = prices
+                    ]
+                    quote_data = kite.kite.quote(symbols)
+
+                    # Map to dashboard-friendly format
+                    SYMBOL_MAP = {
+                        "NSE:NIFTY 50": "NIFTY",
+                        "NSE:NIFTY BANK": "BANKNIFTY",
+                        "NSE:NIFTY FIN SERVICE": "FINNIFTY",
+                        "NSE:NIFTY IT": "IT",
+                        "NSE:NIFTY AUTO": "AUTO",
+                        "NSE:NIFTY PHARMA": "PHARMA",
+                        "NSE:NIFTY METAL": "METAL",
+                        "NSE:NIFTY ENERGY": "ENERGY",
+                        "NSE:NIFTY FMCG": "FMCG",
+                        "NSE:NIFTY REALTY": "REALTY",
+                        "NSE:NIFTY MEDIA": "MEDIA",
+                    }
+
+                    for sym, data in quote_data.items():
+                        key = SYMBOL_MAP.get(sym, sym)
+                        ohlc = data.get("ohlc", {})
+                        ltp = data.get("last_price", 0)
+                        close = ohlc.get("close", ltp)
+                        change = ltp - close if close else 0
+                        dashboard_prices[key] = {
+                            "ltp": ltp,
+                            "open": ohlc.get("open", 0),
+                            "high": ohlc.get("high", 0),
+                            "low": ohlc.get("low", 0),
+                            "close": close,
+                            "change": round(change, 2),
+                            "volume": data.get("volume", 0),
+                        }
+
+                    # Gift Nifty placeholder (not available via Kite)
+                    nifty_data = dashboard_prices.get("NIFTY", {})
+                    if nifty_data and "GIFTNIFTY" not in dashboard_prices:
+                        dashboard_prices["GIFTNIFTY"] = {
+                            "ltp": nifty_data.get("ltp", 0),
+                            "change": nifty_data.get("change", 0),
+                            "close": nifty_data.get("close", 0),
+                            "note": "Derived from Nifty (Gift Nifty not on Kite)",
+                        }
+
+                    _live_prices = dashboard_prices
                     set_module_health("ticker", "green")
+                    logger.info("Prices fetched: NIFTY={} BN={}",
+                               dashboard_prices.get("NIFTY", {}).get("ltp"),
+                               dashboard_prices.get("BANKNIFTY", {}).get("ltp"))
                 except Exception as e:
-                    logger.error("LTP fetch error: {}", e)
+                    logger.error("Price fetch error: {}", e)
                     set_module_health("ticker", "red")
 
-                # Fetch OI chain for NIFTY
+                # Fetch OI chain for NIFTY (needs current expiry)
                 try:
                     from analysis.oi_chain import OIChainAnalyzer
+                    from config import get_current_expiry
                     oi = OIChainAnalyzer()
                     for index_name in ["NIFTY", "BANKNIFTY"]:
-                        chain = kite.get_option_chain(index_name)
+                        expiry = get_current_expiry(index_name)
+                        chain = kite.get_option_chain(index_name, expiry)
                         if chain is not None and not chain.empty:
-                            spot = 0
-                            if index_name == "NIFTY":
-                                spot = ltp_data.get("NSE:NIFTY 50", {}).get("last_price", 0)
-                            elif index_name == "BANKNIFTY":
-                                spot = ltp_data.get("NSE:NIFTY BANK", {}).get("last_price", 0)
+                            spot = dashboard_prices.get(index_name, {}).get("ltp", 0)
                             oi_result = oi.score(chain, None, spot)
                             _oi_data[index_name] = oi_result
                     set_module_health("oi", "green")
@@ -1117,22 +1159,42 @@ async def _start_live_data(user_id: str):
                     logger.error("OI fetch error: {}", e)
                     set_module_health("oi", "red")
 
+                # Build sector data from prices
+                sector_names = ["IT", "AUTO", "PHARMA", "METAL", "ENERGY", "FMCG", "REALTY", "MEDIA", "FINNIFTY"]
+                sectors = {}
+                for s in sector_names:
+                    sd = dashboard_prices.get(s)
+                    if sd:
+                        sectors[s] = {
+                            "ltp": sd.get("ltp", 0),
+                            "change": sd.get("change", 0),
+                            "change_pct": round((sd.get("change", 0) / sd.get("close", 1)) * 100, 2) if sd.get("close") else 0,
+                        }
+                if sectors:
+                    _sector_data = sectors
+                    set_module_health("sector", "green")
+
                 # Broadcast to all connected users
-                if prices:
+                if dashboard_prices:
                     await ws_manager.broadcast_shared({
                         "channel": "prices",
-                        "data": prices,
+                        "data": dashboard_prices,
                     })
                 if _oi_data:
                     await ws_manager.broadcast_shared({
                         "channel": "oi",
                         "data": _oi_data,
                     })
+                if _sector_data:
+                    await ws_manager.broadcast_shared({
+                        "channel": "sectors",
+                        "data": _sector_data,
+                    })
 
             except Exception as exc:
                 logger.error("Live data loop error: {}", exc)
 
-            await asyncio.sleep(5)  # Every 5 seconds
+            await asyncio.sleep(10)  # Every 10 seconds
 
     asyncio.create_task(_fetch_loop())
     logger.success("Live data fetch loop started")
