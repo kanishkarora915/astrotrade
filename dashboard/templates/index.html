@@ -605,7 +605,7 @@
         <div class="astro-item"><div class="astro-label">Hora</div><div class="astro-value" id="astroHora">--</div></div>
         <div class="astro-item"><div class="astro-label">Yoga</div><div class="astro-value" id="astroYoga">--</div></div>
         <div class="astro-item"><div class="astro-label">Moon Sign</div><div class="astro-value" id="astroMoonSign">--</div></div>
-        <div class="astro-item"><div class="astro-label">Aspect</div><div class="astro-value" id="astroAspect">--</div></div>
+        <div class="astro-item"><div class="astro-label">Karana</div><div class="astro-value" id="astroAspect">--</div></div>
         <div class="astro-item"><div class="astro-label">Score</div><div class="astro-value" id="astroScore">--</div></div>
         <div class="astro-item"><div class="astro-label">Bias</div><div class="astro-value" id="astroBias">--</div></div>
       </div>
@@ -1177,18 +1177,25 @@
     if (hor) horStr = (typeof hor === 'object') ? (hor.planet || '--') + ' (' + (hor.nature || '') + ')' : hor;
     document.getElementById('astroHora').textContent = horStr;
 
-    document.getElementById('astroYoga').textContent = a.yoga || '--';
+    // Yoga
+    var yog = a.yoga;
+    var yogStr = '--';
+    if (yog) yogStr = (typeof yog === 'object') ? (yog.name || '--') + ' (' + (yog.nature || '') + ')' : yog;
+    document.getElementById('astroYoga').textContent = yogStr;
 
-    // Moon sign from positions if available
+    // Moon sign
     var moonSign = a.moon_sign || '--';
     if (moonSign === '--' && a.positions && a.positions.moon) {
       moonSign = a.positions.moon.sign || '--';
     }
     document.getElementById('astroMoonSign').textContent = moonSign;
 
-    // Primary aspect
-    var aspect = a.primary_aspect || '--';
-    if (aspect === '--' && a.key_signals && a.key_signals.length > 0) {
+    // Karana or primary aspect
+    var aspect = '--';
+    var kar = a.karana;
+    if (kar && typeof kar === 'object' && kar.name && kar.name !== '--') {
+      aspect = kar.name + (kar.is_bhadra ? ' (BHADRA!)' : '');
+    } else if (a.key_signals && a.key_signals.length > 0) {
       aspect = a.key_signals[0];
     }
     document.getElementById('astroAspect').textContent = aspect;

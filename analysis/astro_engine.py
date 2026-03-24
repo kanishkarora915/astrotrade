@@ -163,6 +163,11 @@ class AstroEngine:
             # Next major change: nakshatra transit (~1 day), tithi (~1 day)
             next_change = now + timedelta(hours=6)  # conservative estimate
 
+            # Yoga and Karana from snapshot
+            yoga_data = astro_snapshot.get("yoga", {})
+            karana_data = astro_snapshot.get("karana", {})
+            positions = astro_snapshot.get("positions", {})
+
             result = {
                 "score": total_score,
                 "max_score": 20,
@@ -182,6 +187,12 @@ class AstroEngine:
                     "planet": hora_planet,
                     "nature": hora.get("nature", "neutral"),
                 },
+                "yoga": yoga_data if yoga_data else {"name": "--", "nature": "neutral"},
+                "karana": karana_data if karana_data else {"name": "--", "nature": "neutral"},
+                "moon_sign": astro_snapshot.get("moon_sign", positions.get("moon", {}).get("sign", "--")),
+                "sun_sign": astro_snapshot.get("sun_sign", positions.get("sun", {}).get("sign", "--")),
+                "positions": positions,
+                "aspects": astro_snapshot.get("aspects", []),
                 "key_signals": key_signals,
                 "window_valid_till": next_hora_change.isoformat(),
                 "next_change": next_change.isoformat(),

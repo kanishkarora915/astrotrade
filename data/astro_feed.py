@@ -466,7 +466,93 @@ class AstroFeed:
             return []
 
     # ------------------------------------------------------------------
-    # 6. Current snapshot
+    # 6. Yoga calculation
+    # ------------------------------------------------------------------
+    def get_yoga(self, sun_deg: float, moon_deg: float) -> Dict:
+        """
+        Calculate Yoga from Sun + Moon longitudes.
+        Yoga = (Sun_degree + Moon_degree) / (360/27)
+        27 Yogas in Vedic astrology.
+        """
+        YOGA_NAMES = [
+            "Vishkambha", "Priti", "Ayushman", "Saubhagya", "Shobhana",
+            "Atiganda", "Sukarma", "Dhriti", "Shula", "Ganda",
+            "Vriddhi", "Dhruva", "Vyaghata", "Harshana", "Vajra",
+            "Siddhi", "Vyatipata", "Variyan", "Parigha", "Shiva",
+            "Siddha", "Sadhya", "Shubha", "Shukla", "Brahma",
+            "Indra", "Vaidhriti",
+        ]
+        YOGA_NATURE = {
+            "Vishkambha": "bearish", "Priti": "bullish", "Ayushman": "bullish",
+            "Saubhagya": "bullish", "Shobhana": "bullish", "Atiganda": "bearish",
+            "Sukarma": "bullish", "Dhriti": "bullish", "Shula": "bearish",
+            "Ganda": "bearish", "Vriddhi": "bullish", "Dhruva": "bullish",
+            "Vyaghata": "bearish", "Harshana": "bullish", "Vajra": "volatile",
+            "Siddhi": "bullish", "Vyatipata": "bearish", "Variyan": "bullish",
+            "Parigha": "bearish", "Shiva": "bullish", "Siddha": "bullish",
+            "Sadhya": "bullish", "Shubha": "bullish", "Shukla": "bullish",
+            "Brahma": "bullish", "Indra": "bullish", "Vaidhriti": "bearish",
+        }
+        try:
+            total = (sun_deg + moon_deg) % 360
+            yoga_index = int(total / (360 / 27))
+            yoga_name = YOGA_NAMES[yoga_index]
+            return {
+                "name": yoga_name,
+                "number": yoga_index + 1,
+                "nature": YOGA_NATURE.get(yoga_name, "neutral"),
+            }
+        except Exception as e:
+            logger.error(f"get_yoga failed: {e}")
+            return {"name": "--", "number": 0, "nature": "neutral"}
+
+    # ------------------------------------------------------------------
+    # 7. Karana calculation
+    # ------------------------------------------------------------------
+    def get_karana(self, sun_deg: float, moon_deg: float) -> Dict:
+        """
+        Calculate Karana (half-tithi).
+        Each tithi has 2 karanas. 11 karanas total, 4 fixed + 7 rotating.
+        """
+        KARANA_NAMES = [
+            "Bava", "Balava", "Kaulava", "Taitila", "Garaja",
+            "Vanija", "Vishti",  # 7 rotating (Vishti = Bhadra = inauspicious)
+        ]
+        FIXED_KARANAS = ["Shakuni", "Chatushpada", "Naga", "Kimstughna"]
+        KARANA_NATURE = {
+            "Bava": "bullish", "Balava": "bullish", "Kaulava": "bullish",
+            "Taitila": "bullish", "Garaja": "bullish", "Vanija": "bullish",
+            "Vishti": "bearish",  # Bhadra karana — inauspicious
+            "Shakuni": "bearish", "Chatushpada": "bearish",
+            "Naga": "bearish", "Kimstughna": "neutral",
+        }
+        try:
+            angle = (moon_deg - sun_deg) % 360
+            karana_number = int(angle / 6)  # 60 karanas in 360 degrees
+
+            if karana_number == 0:
+                name = FIXED_KARANAS[0]
+            elif karana_number == 57:
+                name = FIXED_KARANAS[1]
+            elif karana_number == 58:
+                name = FIXED_KARANAS[2]
+            elif karana_number == 59:
+                name = FIXED_KARANAS[3]
+            else:
+                name = KARANA_NAMES[(karana_number - 1) % 7]
+
+            return {
+                "name": name,
+                "number": karana_number + 1,
+                "nature": KARANA_NATURE.get(name, "neutral"),
+                "is_bhadra": name == "Vishti",
+            }
+        except Exception as e:
+            logger.error(f"get_karana failed: {e}")
+            return {"name": "--", "number": 0, "nature": "neutral", "is_bhadra": False}
+
+    # ------------------------------------------------------------------
+    # 8. Current snapshot
     # ------------------------------------------------------------------
     def get_current_snapshot(self) -> Dict:
         """
@@ -492,13 +578,23 @@ class AstroFeed:
             # Aspects
             aspects = self.get_planetary_aspects(positions)
 
+            # Yoga
+            yoga = self.get_yoga(sun_deg, moon_deg)
+
+            # Karana
+            karana = self.get_karana(sun_deg, moon_deg)
+
             snapshot = {
                 "timestamp": now.isoformat(),
                 "positions": positions,
                 "nakshatra": nakshatra,
                 "tithi": tithi,
                 "hora": hora,
+                "yoga": yoga,
+                "karana": karana,
                 "aspects": aspects,
+                "moon_sign": positions.get("moon", {}).get("sign", "--"),
+                "sun_sign": positions.get("sun", {}).get("sign", "--"),
                 "meta": {
                     "locale": "Mumbai, IN",
                     "lat": self.MUMBAI_LAT,
