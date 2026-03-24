@@ -1111,15 +1111,22 @@ async def _start_live_data(user_id: str):
                         key = SYMBOL_MAP.get(sym, sym)
                         ohlc = data.get("ohlc", {})
                         ltp = data.get("last_price", 0)
-                        close = ohlc.get("close", ltp)
-                        change = ltp - close if close else 0
+                        prev_close = ohlc.get("close", 0)
+                        # Use Kite's net_change if available, else calculate
+                        change = data.get("net_change", 0)
+                        if not change and prev_close:
+                            change = ltp - prev_close
+                        change_pct = 0
+                        if prev_close and prev_close > 0:
+                            change_pct = round((change / prev_close) * 100, 2)
                         dashboard_prices[key] = {
                             "ltp": ltp,
                             "open": ohlc.get("open", 0),
                             "high": ohlc.get("high", 0),
                             "low": ohlc.get("low", 0),
-                            "close": close,
+                            "close": prev_close,
                             "change": round(change, 2),
+                            "change_pct": change_pct,
                             "volume": data.get("volume", 0),
                         }
 
@@ -1168,7 +1175,7 @@ async def _start_live_data(user_id: str):
                         sectors[s] = {
                             "ltp": sd.get("ltp", 0),
                             "change": sd.get("change", 0),
-                            "change_pct": round((sd.get("change", 0) / sd.get("close", 1)) * 100, 2) if sd.get("close") else 0,
+                            "change_pct": sd.get("change_pct", 0),
                         }
                 if sectors:
                     _sector_data = sectors

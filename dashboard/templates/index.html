@@ -1274,8 +1274,7 @@ html, body {
       var chgEl = document.getElementById('priceChg-' + idx);
       if (chgEl && change !== undefined) {
         var sign = change >= 0 ? '+' : '';
-        var close = p.close || (ltp - change);
-        var changePct = close ? ((change / close) * 100).toFixed(2) : '0.00';
+        var changePct = p.change_pct != null ? p.change_pct.toFixed(2) : '0.00';
         chgEl.textContent = sign + change.toFixed(2) + ' (' + sign + changePct + '%)';
         chgEl.className = 'idx-chg ' + (change >= 0 ? 'bull' : 'bear');
       }
@@ -1524,7 +1523,7 @@ html, body {
     }
     grid.innerHTML = keys.map(function(name) {
       var s = sectors[name];
-      var impact = s.impact || s.change || s.change_pct || 0;
+      var impact = s.change_pct != null ? s.change_pct : (s.impact || 0);
       var absImp = Math.abs(impact);
       var intensity = Math.min(absImp / 3, 1);
       var bg, fg, border;
