@@ -1181,6 +1181,81 @@ async def _start_live_data(user_id: str):
                     _sector_data = sectors
                     set_module_health("sector", "green")
 
+                # ── SCORING ENGINE — Run every cycle ──
+                try:
+                    from scoring.score_engine import ScoreEngine
+                    from scoring.signal_generator import SignalGenerator
+                    scorer = ScoreEngine()
+
+                    for index_name in ["NIFTY", "BANKNIFTY"]:
+                        spot = dashboard_prices.get(index_name, {}).get("ltp", 0)
+                        if not spot:
+                            continue
+
+                        # Build module scores from available data
+                        oi_score = _oi_data.get(index_name, {}).get("score", 0)
+                        oi_buildup = _oi_data.get(index_name, {}).get("buildup_score", 0)
+                        astro_score = _astro_data.get("score", 0) if _astro_data else 0
+
+                        module_scores = {
+                            "oi_chain": oi_score,
+                            "oi_buildup": oi_buildup,
+                            "astro": astro_score,
+                            "greeks": 5,       # default mid
+                            "price_action": 5,  # default mid
+                            "fii_dii": 4,       # default mid
+                            "global_cues": 3,   # default mid
+                            "smart_money": 2,   # default mid
+                            "expiry": 1,        # default mid
+                            "breadth": 1,       # default mid
+                        }
+
+                        score_result = scorer.compute_total_score(module_scores, index_name)
+
+                        # Store scores for this user's session
+                        if session:
+                            session.scores[index_name] = score_result
+
+                        # Broadcast scores
+                        await ws_manager.broadcast_shared({
+                            "channel": "scores",
+                            "data": {index_name: score_result},
+                        })
+
+                        # Generate signal if score >= 70
+                        if score_result.get("total_score", 0) >= 70:
+                            try:
+                                sig_gen = SignalGenerator()
+                                chain = None
+                                # Try to get OI chain for signal generation
+                                try:
+                                    from config import get_current_expiry
+                                    expiry = get_current_expiry(index_name)
+                                    chain = kite.get_option_chain(index_name, expiry)
+                                except Exception:
+                                    pass
+
+                                if chain is not None and not chain.empty:
+                                    signal = sig_gen.generate_signal(score_result, chain, spot, index_name)
+                                    if signal:
+                                        if session:
+                                            session.signals.append(signal)
+                                        await ws_manager.broadcast_shared({
+                                            "channel": "signal",
+                                            "data": signal,
+                                        })
+                                        logger.success("SIGNAL: {} {} score={} entry={}",
+                                                      index_name, signal.get("signal_type"),
+                                                      score_result.get("total_score"),
+                                                      signal.get("entry_price"))
+                            except Exception as sig_err:
+                                logger.error("Signal generation error for {}: {}", index_name, sig_err)
+
+                    set_module_health("scorer", "green")
+                except Exception as score_err:
+                    logger.error("Scoring engine error: {}", score_err)
+                    set_module_health("scorer", "red")
+
                 # Broadcast to all connected users
                 if dashboard_prices:
                     await ws_manager.broadcast_shared({
@@ -1201,7 +1276,7 @@ async def _start_live_data(user_id: str):
             except Exception as exc:
                 logger.error("Live data loop error: {}", exc)
 
-            await asyncio.sleep(10)  # Every 10 seconds
+            await asyncio.sleep(60)  # Every 60 seconds (as per spec)
 
     asyncio.create_task(_fetch_loop())
     logger.success("Live data fetch loop started")
