@@ -696,7 +696,7 @@
   // ── State ──
   var ws = null;
   var reconnectTimer = null;
-  var WS_URL = 'ws://' + window.location.host + '/ws';
+  var WS_URL = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host + '/ws';
   var tickCount = 0;
   var lastTickTs = 0;
   var prevPrices = {};

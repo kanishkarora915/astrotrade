@@ -1029,6 +1029,32 @@ async def _session_refresh_loop():
             logger.error("Failed to broadcast session expiry: {}", exc)
 
 
+async def _init_shared_data():
+    """Compute shared data that doesn't need API keys (astro, weekly forecast)."""
+    global _astro_data, _weekly_forecast
+    try:
+        from analysis.astro_engine import AstroEngine
+        astro = AstroEngine()
+        _astro_data = astro.score()
+        set_module_health("astro", "green")
+        logger.success("Astro data computed on startup: score={}, bias={}",
+                       _astro_data.get("score"), _astro_data.get("bias"))
+    except Exception as exc:
+        logger.error("Failed to compute astro data on startup: {}", exc)
+        set_module_health("astro", "red")
+
+    try:
+        from analysis.probability import WeeklyProbabilityEngine
+        from analysis.astro_engine import AstroEngine
+        prob = WeeklyProbabilityEngine()
+        astro_eng = AstroEngine()
+        astro_fc = astro_eng.get_weekly_astro_forecast(datetime.now())
+        _weekly_forecast = prob.compute_next_week(spot=23500, iv=0.15, astro_forecast=astro_fc)
+        logger.success("Weekly forecast computed on startup")
+    except Exception as exc:
+        logger.error("Failed to compute weekly forecast: {}", exc)
+
+
 # ---------------------------------------------------------------------------
 # Startup / Shutdown
 # ---------------------------------------------------------------------------
@@ -1066,6 +1092,9 @@ async def on_startup():
     # Start the daily session refresh scheduler
     asyncio.create_task(_session_refresh_loop())
     logger.info("Session refresh scheduler started (6:05 AM IST daily)")
+
+    # Auto-compute astro data on startup (no API key needed)
+    asyncio.create_task(_init_shared_data())
 
 
 @app.on_event("shutdown")
