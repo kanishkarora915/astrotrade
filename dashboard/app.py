@@ -177,6 +177,7 @@ AUTH_EXEMPT_PATHS = {
     "/api/auth/callback",
     "/api/auth/status",
     "/api/admin/users",
+    "/api/astro/live",
     "/health",
     "/docs",
     "/openapi.json",
@@ -470,6 +471,27 @@ async def set_mode(request: Request, mode_input: ModeInput):
     session.paper_trade = (mode_input.mode == "paper")
     logger.info("User {} switched to {} mode", session.user_id[:8], mode_input.mode)
     return JSONResponse(content={"success": True, "mode": mode_input.mode})
+
+
+# ---------------------------------------------------------------------------
+# Routes — Public Astro (no auth needed)
+# ---------------------------------------------------------------------------
+@app.get("/api/astro/live")
+async def astro_live():
+    """Return current astro data (public — no auth needed)."""
+    if _astro_data:
+        return JSONResponse(content=_astro_data)
+    # Compute fresh if not available
+    try:
+        from data.astro_feed import AstroFeed
+        from analysis.astro_engine import AstroEngine
+        feed = AstroFeed()
+        snapshot = feed.get_current_snapshot()
+        engine = AstroEngine()
+        result = engine.score(snapshot)
+        return JSONResponse(content=result)
+    except Exception as exc:
+        return JSONResponse(content={"error": str(exc), "traceback": True}, status_code=500)
 
 
 # ---------------------------------------------------------------------------
@@ -1120,17 +1142,22 @@ async def _init_shared_data():
     """Compute shared data that doesn't need API keys (astro, weekly forecast)."""
     global _astro_data, _weekly_forecast
     try:
+        import traceback as _tb
         from data.astro_feed import AstroFeed
         from analysis.astro_engine import AstroEngine
+        logger.info("Computing astro data...")
         feed = AstroFeed()
+        logger.info("AstroFeed created, getting snapshot...")
         snapshot = feed.get_current_snapshot()
+        logger.info("Snapshot ready, computing score...")
         astro = AstroEngine()
         _astro_data = astro.score(snapshot)
         set_module_health("astro", "green")
         logger.success("Astro data computed on startup: score={}, bias={}",
                        _astro_data.get("score"), _astro_data.get("bias"))
     except Exception as exc:
-        logger.error("Failed to compute astro data on startup: {}", exc)
+        import traceback as _tb
+        logger.error("Failed to compute astro data on startup: {}\n{}", exc, _tb.format_exc())
         set_module_health("astro", "red")
 
     try:
