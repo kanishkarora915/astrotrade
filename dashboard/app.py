@@ -410,6 +410,10 @@ async def auth_callback(request_token: str = Query(None), status: str = Query(No
         max_age=JWT_EXPIRY_HOURS * 3600,
         path="/",
     )
+
+    # Start background data fetching for this user's Kite session
+    asyncio.create_task(_start_live_data(authenticated_user_id))
+
     return response
 
 
@@ -1029,13 +1033,99 @@ async def _session_refresh_loop():
             logger.error("Failed to broadcast session expiry: {}", exc)
 
 
+_live_data_running = False
+
+
+async def _start_live_data(user_id: str):
+    """Start live market data fetching using first authenticated user's Kite session."""
+    global _live_data_running, _oi_data, _live_prices, _sector_data
+    if _live_data_running:
+        return  # Already running from another user
+
+    session = user_manager.get_session(user_id)
+    if not session or not session.kite_client:
+        logger.warning("Cannot start live data — no Kite client for user {}", user_id[:8])
+        return
+
+    _live_data_running = True
+    logger.info("Starting live data fetching using user {}'s Kite session", user_id[:8])
+
+    kite = session.kite_client
+
+    async def _fetch_loop():
+        global _oi_data, _live_prices, _sector_data
+        while _live_data_running:
+            try:
+                # Fetch live prices for indices
+                import asyncio as _aio
+                prices = {}
+                try:
+                    ltp_data = kite.get_ltp([
+                        "NSE:NIFTY 50", "NSE:NIFTY BANK",
+                        "NSE:NIFTY FIN SERVICE", "NSE:NIFTY IT",
+                        "NSE:NIFTY AUTO", "NSE:NIFTY PHARMA",
+                        "NSE:NIFTY METAL", "NSE:NIFTY ENERGY",
+                        "NSE:NIFTY FMCG", "NSE:NIFTY REALTY",
+                        "NSE:NIFTY MEDIA",
+                    ])
+                    for sym, data in ltp_data.items():
+                        prices[sym] = data
+                    _live_prices = prices
+                    set_module_health("ticker", "green")
+                except Exception as e:
+                    logger.error("LTP fetch error: {}", e)
+                    set_module_health("ticker", "red")
+
+                # Fetch OI chain for NIFTY
+                try:
+                    from analysis.oi_chain import OIChainAnalyzer
+                    oi = OIChainAnalyzer()
+                    for index_name in ["NIFTY", "BANKNIFTY"]:
+                        chain = kite.get_option_chain(index_name)
+                        if chain is not None and not chain.empty:
+                            spot = 0
+                            if index_name == "NIFTY":
+                                spot = ltp_data.get("NSE:NIFTY 50", {}).get("last_price", 0)
+                            elif index_name == "BANKNIFTY":
+                                spot = ltp_data.get("NSE:NIFTY BANK", {}).get("last_price", 0)
+                            oi_result = oi.score(chain, None, spot)
+                            _oi_data[index_name] = oi_result
+                    set_module_health("oi", "green")
+                except Exception as e:
+                    logger.error("OI fetch error: {}", e)
+                    set_module_health("oi", "red")
+
+                # Broadcast to all connected users
+                if prices:
+                    await ws_manager.broadcast_shared({
+                        "channel": "prices",
+                        "data": prices,
+                    })
+                if _oi_data:
+                    await ws_manager.broadcast_shared({
+                        "channel": "oi",
+                        "data": _oi_data,
+                    })
+
+            except Exception as exc:
+                logger.error("Live data loop error: {}", exc)
+
+            await asyncio.sleep(5)  # Every 5 seconds
+
+    asyncio.create_task(_fetch_loop())
+    logger.success("Live data fetch loop started")
+
+
 async def _init_shared_data():
     """Compute shared data that doesn't need API keys (astro, weekly forecast)."""
     global _astro_data, _weekly_forecast
     try:
+        from data.astro_feed import AstroFeed
         from analysis.astro_engine import AstroEngine
+        feed = AstroFeed()
+        snapshot = feed.get_current_snapshot()
         astro = AstroEngine()
-        _astro_data = astro.score()
+        _astro_data = astro.score(snapshot)
         set_module_health("astro", "green")
         logger.success("Astro data computed on startup: score={}, bias={}",
                        _astro_data.get("score"), _astro_data.get("bias"))
@@ -1045,14 +1135,40 @@ async def _init_shared_data():
 
     try:
         from analysis.probability import WeeklyProbabilityEngine
-        from analysis.astro_engine import AstroEngine
+        from analysis.astro_engine import AstroEngine as AE2
         prob = WeeklyProbabilityEngine()
-        astro_eng = AstroEngine()
+        astro_eng = AE2()
         astro_fc = astro_eng.get_weekly_astro_forecast(datetime.now())
         _weekly_forecast = prob.compute_next_week(spot=23500, iv=0.15, astro_forecast=astro_fc)
         logger.success("Weekly forecast computed on startup")
     except Exception as exc:
         logger.error("Failed to compute weekly forecast: {}", exc)
+
+    # Schedule periodic astro refresh every 30 minutes
+    asyncio.create_task(_astro_refresh_loop())
+
+
+async def _astro_refresh_loop():
+    """Refresh astro data every 30 minutes and broadcast to all connected clients."""
+    global _astro_data
+    while True:
+        await asyncio.sleep(1800)  # 30 min
+        try:
+            from data.astro_feed import AstroFeed
+            from analysis.astro_engine import AstroEngine
+            feed = AstroFeed()
+            snapshot = feed.get_current_snapshot()
+            astro = AstroEngine()
+            _astro_data = astro.score(snapshot)
+            set_module_health("astro", "green")
+            # Broadcast to all connected users
+            await ws_manager.broadcast_shared({
+                "channel": "astro",
+                "data": _astro_data,
+            })
+            logger.info("Astro refreshed: score={}, bias={}", _astro_data.get("score"), _astro_data.get("bias"))
+        except Exception as exc:
+            logger.error("Astro refresh failed: {}", exc)
 
 
 # ---------------------------------------------------------------------------
@@ -1095,6 +1211,14 @@ async def on_startup():
 
     # Auto-compute astro data on startup (no API key needed)
     asyncio.create_task(_init_shared_data())
+
+    # Auto-start live data if any restored user has active Kite session
+    if stats["active_users"] > 0:
+        for uid, sess in user_manager.sessions.items():
+            if sess.is_authenticated and sess.kite_client:
+                asyncio.create_task(_start_live_data(uid))
+                logger.info("Auto-started live data for restored user {}", uid[:8])
+                break
 
 
 @app.on_event("shutdown")
