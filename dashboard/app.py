@@ -191,7 +191,7 @@ async def auth_middleware(request: Request, call_next):
     path = request.url.path
 
     # Allow exempt paths
-    if path in AUTH_EXEMPT_PATHS or path.startswith("/api/auth/"):
+    if path in AUTH_EXEMPT_PATHS or path.startswith("/api/auth/") or path.startswith("/api/astro/"):
         return await call_next(request)
 
     # Allow static files
