@@ -1161,15 +1161,41 @@
 
   // ── Astro renderer ──
   function renderAstro(a) {
-    document.getElementById('astroNakshatra').textContent = a.nakshatra || '--';
-    document.getElementById('astroTithi').textContent = a.tithi || '--';
-    document.getElementById('astroHora').textContent = a.hora || '--';
+    // Astro data has nested objects — extract .name from each
+    var nak = a.nakshatra;
+    var nakStr = '--';
+    if (nak) nakStr = (typeof nak === 'object') ? (nak.name || '--') + ' P' + (nak.pada || '') : nak;
+    document.getElementById('astroNakshatra').textContent = nakStr;
+
+    var tit = a.tithi;
+    var titStr = '--';
+    if (tit) titStr = (typeof tit === 'object') ? (tit.name || '--') : tit;
+    document.getElementById('astroTithi').textContent = titStr;
+
+    var hor = a.hora;
+    var horStr = '--';
+    if (hor) horStr = (typeof hor === 'object') ? (hor.planet || '--') + ' (' + (hor.nature || '') + ')' : hor;
+    document.getElementById('astroHora').textContent = horStr;
+
     document.getElementById('astroYoga').textContent = a.yoga || '--';
-    document.getElementById('astroMoonSign').textContent = a.moon_sign || '--';
-    document.getElementById('astroAspect').textContent = a.primary_aspect || '--';
-    document.getElementById('astroScore').textContent = a.score != null ? a.score : '--';
+
+    // Moon sign from positions if available
+    var moonSign = a.moon_sign || '--';
+    if (moonSign === '--' && a.positions && a.positions.moon) {
+      moonSign = a.positions.moon.sign || '--';
+    }
+    document.getElementById('astroMoonSign').textContent = moonSign;
+
+    // Primary aspect
+    var aspect = a.primary_aspect || '--';
+    if (aspect === '--' && a.key_signals && a.key_signals.length > 0) {
+      aspect = a.key_signals[0];
+    }
+    document.getElementById('astroAspect').textContent = aspect;
+
+    document.getElementById('astroScore').textContent = a.score != null ? a.score + '/20' : '--';
     var biasEl = document.getElementById('astroBias');
-    biasEl.textContent = a.bias || '--';
+    biasEl.textContent = a.bias ? a.bias.toUpperCase() : '--';
     biasEl.className = 'astro-value ' + biasClass(a.bias);
   }
 
@@ -1223,19 +1249,27 @@
   // ── Weekly forecast ──
   function renderWeekly(forecast) {
     var body = document.getElementById('weeklyBody');
-    var days = forecast.days || [];
+    var days = forecast.days || forecast.daily_forecast || [];
     if (!days.length) {
       body.innerHTML = '<tr><td colspan="6" class="empty-msg">Forecast not generated yet</td></tr>';
       return;
     }
     body.innerHTML = days.map(function(d) {
+      var callP = d.call_probability != null ? (d.call_probability * 100).toFixed(0) + '%' : (d.bull_pct || '--');
+      var putP = d.put_probability != null ? (d.put_probability * 100).toFixed(0) + '%' : (d.bear_pct || '--');
+      var nak = d.nakshatra || '';
+      if (typeof nak === 'object') nak = nak.name || '';
+      var tit = d.tithi || '';
+      if (typeof tit === 'object') tit = tit.name || '';
+      var astroNote = d.astro_note || (nak + (tit ? ' / ' + tit : ''));
+      var biasTag = d.bias ? '<span class="tag ' + biasClass(d.bias) + '">' + d.bias.toUpperCase() + '</span>' : '--';
       return '<tr>' +
         '<td>' + (d.day || '--') + '</td>' +
-        '<td>' + (d.range || '--') + '</td>' +
-        '<td class="bull">' + (d.bull_pct || '--') + '</td>' +
-        '<td class="bear">' + (d.bear_pct || '--') + '</td>' +
-        '<td>' + (d.key_levels || '--') + '</td>' +
-        '<td>' + (d.astro_note || '--') + '</td>' +
+        '<td>' + biasTag + '</td>' +
+        '<td class="bull">' + callP + '</td>' +
+        '<td class="bear">' + putP + '</td>' +
+        '<td>' + (d.best_trade || d.key_levels || '--') + '</td>' +
+        '<td>' + astroNote + '</td>' +
         '</tr>';
     }).join('');
   }
